@@ -13,21 +13,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.reader;
+package reconf.server.domain;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import org.jboss.resteasy.annotations.*;
-import reconf.server.auditing.*;
+import java.io.*;
 
-@Path(ReadService.ROOT)
-public interface ReadService {
+public class PoolProperty extends GlobalProperty implements Serializable {
 
-    final String ROOT = "/";
-    final String GET_PROD_COMP_PROP = "{product}/{component}/{configuration}";
+    private static final long serialVersionUID = 1L;
 
-    @GET
-    @Path(GET_PROD_COMP_PROP)
-    @GZIP
-    Response get(@Form ReadOperation op, @Form ReadRequest req);
 }

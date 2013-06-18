@@ -21,9 +21,8 @@ import javax.servlet.http.*;
 
 public class AuditingFilter implements Filter {
 
-    static final String BODY_HEADER = "auditingBody";
-    static final String USER_HEADER = "auditingUser";
-    static final String IP_HEADER = "auditingIp";
+    public static final String BODY_HEADER = "auditingBody";
+    public static final String USER_HEADER = "auditingUser";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

@@ -17,13 +17,16 @@ package reconf.server.reader;
 
 import javax.ws.rs.core.*;
 import org.springframework.stereotype.*;
+import reconf.server.auditing.*;
 
 @Controller
 public class ReadServiceImpl implements ReadService {
 
     @Override
-    public Response get(ReadRequest req) {
-        return Response.ok().build();
+    public Response get(ReadOperation op, ReadRequest req) {
+        System.out.println(op.getRequestHeaders());
+
+        return Response.ok().entity(op.getRequestIp() + " - " + op.getRequestUser()).build();
     }
 
 }

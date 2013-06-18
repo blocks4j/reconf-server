@@ -29,7 +29,7 @@ import org.apache.commons.lang3.*;
 @SuppressWarnings("rawtypes")
 public class ResettableStreamHttpServletRequest extends HttpServletRequestWrapper {
 
-    private final Set<String> specialHeaders = new TreeSet<String>(Arrays.asList(AuditingFilter.BODY_HEADER, AuditingFilter.USER_HEADER, AuditingFilter.IP_HEADER));
+    private final Set<String> specialHeaders = new TreeSet<String>(Arrays.asList(AuditingFilter.BODY_HEADER, AuditingFilter.USER_HEADER));
 
     private byte[] rawData;
     private HttpServletRequest request;
@@ -81,9 +81,6 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
         }
         if (StringUtils.equals(name, AuditingFilter.USER_HEADER)) {
             return getHeader("X-ReConf-User");
-        }
-        if (StringUtils.equals(name, AuditingFilter.IP_HEADER)) {
-            return getRemoteAddr();
         }
         return super.getHeader(name);
     }
