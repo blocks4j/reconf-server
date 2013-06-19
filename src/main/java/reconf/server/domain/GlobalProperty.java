@@ -17,6 +17,7 @@ package reconf.server.domain;
 
 import java.io.*;
 import javax.persistence.*;
+import org.apache.commons.lang3.*;
 
 @Entity @Table(name="global_property")
 public class GlobalProperty implements Serializable {
@@ -27,26 +28,27 @@ public class GlobalProperty implements Serializable {
     private String name;
     private String description;
     private String value;
+    private Integer version;
 
     public String getComponent() {
         return component;
     }
     public void setComponent(String component) {
-        this.component = component;
+        this.component = StringUtils.lowerCase(component);
     }
 
     public String getProduct() {
         return product;
     }
     public void setProduct(String product) {
-        this.product = product;
+        this.product = StringUtils.lowerCase(product);
     }
 
     public String getName() {
         return name;
     }
     public void setName(String name) {
-        this.name = name;
+        this.name = StringUtils.lowerCase(name);
     }
 
     public String getDescription() {
@@ -61,5 +63,13 @@ public class GlobalProperty implements Serializable {
     }
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Version
+    public Integer getVersion() {
+        return version;
+    }
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
