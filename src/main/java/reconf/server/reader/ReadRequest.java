@@ -66,10 +66,6 @@ public class ReadRequest {
         this.pool = StringUtils.lowerCase(pool);
     }
 
-    public boolean isGlobal() {
-        return StringUtils.isBlank(instance) && StringUtils.isBlank(pool);
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
