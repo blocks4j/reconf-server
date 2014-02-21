@@ -16,17 +16,32 @@
 package reconf.server.reader;
 
 import javax.ws.rs.core.*;
+import org.jboss.resteasy.annotations.*;
 import org.springframework.stereotype.*;
 import reconf.server.auditing.*;
+import reconf.server.persistence.*;
 
 @Controller
 public class ReadServiceImpl implements ReadService {
 
     @Override
-    public Response get(ReadOperation op, ReadRequest req) {
-        System.out.println(op.getRequestHeaders());
+    public Response getConfiguration(ReadOperation op, ReadRequest req) {
+        String result = ConfigurationRepository.DEFAULT.get(req.getProduct(), req.getComponent(), req.getConfiguration());
 
-        return Response.ok().entity(op.getRequestIp() + " - " + op.getRequestUser()).build();
+        if (result == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok().entity(result).build();
+    }
+
+    @Override
+    public Response putConfiguration(@Form ReadOperation op, @Form ReadRequest req) {
+        return null;
+    }
+
+    @Override
+    public Response getComponent(@Form ReadOperation op, @Form ReadRequest req) {
+        return null;
     }
 
 }

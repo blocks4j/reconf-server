@@ -24,10 +24,21 @@ import reconf.server.auditing.*;
 public interface ReadService {
 
     final String ROOT = "/";
-    final String GET_PROD_COMP_PROP = "{product}/{component}/{configuration}";
+    final String PROD_COMP_PROP = "{product}/{component}/{configuration}";
+    final String PROD_COMP = "{product}/{component}";
 
     @GET
-    @Path(GET_PROD_COMP_PROP)
+    @Path(PROD_COMP_PROP)
     @GZIP
-    Response get(@Form ReadOperation op, @Form ReadRequest req);
+    Response getConfiguration(@Form ReadOperation op, @Form ReadRequest req);
+
+    @PUT
+    @Path(PROD_COMP_PROP)
+    @GZIP
+    Response putConfiguration(@Form ReadOperation op, @Form ReadRequest req);
+
+    @GET
+    @Path(PROD_COMP)
+    @GZIP
+    Response getComponent(@Form ReadOperation op, @Form ReadRequest req);
 }
