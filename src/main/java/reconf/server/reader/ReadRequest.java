@@ -23,7 +23,8 @@ public class ReadRequest {
 
     private String product;
     private String component;
-    private String configuration;
+    private String property;
+    private String value;
     private String instance;
     private String pool;
 
@@ -51,14 +52,21 @@ public class ReadRequest {
         this.instance = StringUtils.lowerCase(instance);
     }
 
-    public String getConfiguration() {
-        return configuration;
+    public String getProperty() {
+        return property;
     }
-    @PathParam("configuration")
-    public void setConfiguration(String configuration) {
-        this.configuration = StringUtils.lowerCase(configuration);
+    @PathParam("property")
+    public void setProperty(String property) {
+        this.property = StringUtils.lowerCase(property);
     }
 
+    public String getValue() {
+		return value;
+	}    
+    public void setValue(String value) {
+        this.value = StringUtils.lowerCase(value);
+    }
+    
     public String getPool() {
         return pool;
     }
@@ -71,9 +79,11 @@ public class ReadRequest {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
         .append("product", product)
         .append("component", component)
-        .append("configuration", configuration)
+        .append("property", property)
+        .append("value", value)
         .append("instance", instance)
         .append("pool", pool)
         .toString();
     }
+	
 }

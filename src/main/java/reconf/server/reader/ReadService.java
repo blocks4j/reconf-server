@@ -15,30 +15,50 @@
  */
 package reconf.server.reader;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import org.jboss.resteasy.annotations.*;
-import reconf.server.auditing.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+
+import reconf.server.domain.Component;
+import reconf.server.domain.Property;
 
 @Path(ReadService.ROOT)
+@Consumes({"application/json"})
+@Produces({"application/json"})
 public interface ReadService {
 
     final String ROOT = "/";
-    final String PROD_COMP_PROP = "{product}/{component}/{configuration}";
-    final String PROD_COMP = "{product}/{component}";
+     
+    final String PROD_COMP_PROP = "product/{productName}/component/{componentName}/property/{propertyName}";    
+    final String PROD_COMP = "product/{productName}/component/{componentName}";
 
+    //@AddLinks
+    //@LinkResource
+    
+    @GET
+    @Path(PROD_COMP)
+    Component getComponent(@PathParam("productName") String product, 
+    		@PathParam("componentName") String component);
+    
     @GET
     @Path(PROD_COMP_PROP)
-    @GZIP
-    Response getConfiguration(@Form ReadOperation op, @Form ReadRequest req);
+    Property getProperty(@PathParam("productName") String product, 
+    		@PathParam("componentName") String component, 
+    		@PathParam("propertyName") String property);
 
     @PUT
     @Path(PROD_COMP_PROP)
-    @GZIP
-    Response putConfiguration(@Form ReadOperation op, @Form ReadRequest req);
+    public void putProperty(@PathParam("productName") String product, 
+			@PathParam("componentName") String component, 
+			@PathParam("propertyName") String propertyName,
+    		Property property);
 
+    /*
     @GET
     @Path(PROD_COMP)
-    @GZIP
     Response getComponent(@Form ReadOperation op, @Form ReadRequest req);
+    */
 }

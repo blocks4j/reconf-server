@@ -15,33 +15,64 @@
  */
 package reconf.server.reader;
 
-import javax.ws.rs.core.*;
-import org.jboss.resteasy.annotations.*;
-import org.springframework.stereotype.*;
-import reconf.server.auditing.*;
-import reconf.server.persistence.*;
+import java.net.URI;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.UriBuilder;
+
+import org.springframework.stereotype.Controller;
+
+import reconf.server.domain.Component;
+import reconf.server.domain.Property;
+import reconf.server.persistence.ConfigurationRepository;
 
 @Controller
 public class ReadServiceImpl implements ReadService {
 
     @Override
-    public Response getConfiguration(ReadOperation op, ReadRequest req) {
-        String result = ConfigurationRepository.DEFAULT.get(req.getProduct(), req.getComponent(), req.getConfiguration());
+    public Property getProperty(@PathParam("product") String product, 
+    							@PathParam("component") String component, 
+    							@PathParam("property") String property) {
+        Property result = ConfigurationRepository.DEFAULT.get(product, component, property);
 
-        if (result == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return Response.ok().entity(result).build();
+//        if (result == "") {
+//            return Response.status(Response.Status.NOT_FOUND).build();
+//        }
+        
+        return result;
+        
+        //return Response.ok().entity(p).build();
     }
 
     @Override
-    public Response putConfiguration(@Form ReadOperation op, @Form ReadRequest req) {
-        return null;
+    public void putProperty(@PathParam("product") String product, 
+			@PathParam("component") String component, 
+			@PathParam("property") String propertyName,
+    		Property property) {
+    	ConfigurationRepository.DEFAULT.upsert(product, component, propertyName, property);
+    	
+    	URI configURI = UriBuilder.fromPath(ReadService.PROD_COMP_PROP).build(property.getProduct(),property.getComponent(), property.getName());
+    	
+		//return Response.created(configURI).build();
+		
     }
 
-    @Override
-    public Response getComponent(@Form ReadOperation op, @Form ReadRequest req) {
-        return null;
-    }
+	@Override
+	@GET
+	@Path("product/{productName}/component/{componentName}/property")
+	public Component getComponent(
+			@PathParam("productName") String productName,
+			@PathParam("componentName") String componentName) {
+		
+		return ConfigurationRepository.DEFAULT.get(productName, componentName);
+	}
+
+    
+//    @Override
+//    public Response getComponent(@Form ReadOperation op, @Form ReadRequest req) {
+//        return null;
+//    }
 
 }

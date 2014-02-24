@@ -15,15 +15,18 @@
  */
 package reconf.server.persistence;
 
+import reconf.server.domain.Component;
+import reconf.server.domain.Property;
+
 public interface ConfigurationRepository {
 
     ConfigurationRepository DEFAULT = new SimpleConfigurationRepository();
 
-    void upsert(String product, String component, String configuration);
-    void insert(String product, String component);
+    void upsert(String product, String component, String configuration, Property value);
+    void insert(String product, String component, Component comp);
     void insert(String product);
-    String get(String product, String component, String configuration);
-    String get(String product, String component);
+    Property get(String product, String component, String configuration);
+    Component get(String product, String component);
     String get(String product);
     void delete(String product, String component, String configuration);
     void delete(String product, String component);

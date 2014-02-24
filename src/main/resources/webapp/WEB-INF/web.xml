@@ -13,6 +13,7 @@
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
+	<!-- 
     <filter>
        <filter-name>auditing-filter</filter-name>
        <filter-class>reconf.server.filter.AuditingFilter</filter-class>
@@ -26,5 +27,6 @@
        <dispatcher>INCLUDE</dispatcher>
        <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
+    -->
 
 </web-app>

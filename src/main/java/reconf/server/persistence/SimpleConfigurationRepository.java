@@ -15,30 +15,116 @@
  */
 package reconf.server.persistence;
 
-import org.apache.commons.lang3.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import reconf.server.domain.Component;
+import reconf.server.domain.Property;
 
 public class SimpleConfigurationRepository implements ConfigurationRepository {
+                         
+	private Map<String, Map<String, Map<String,Property>>> map = new HashMap<>();
+	
+	private Map<String, Map<String, Component>> mapComponent = new HashMap<>();
+	
+//	private Map<String, Product> mapProduct = new HashMap<>();
+	
+	
 
+	{
+		this.insert("teste");
+		Component comp = new Component();
+		comp.setName("a");		
+		this.insert("teste","a",comp);
+		Property p = new Property();
+		p.setName("c");
+		p.setValue("funciona");
+		this.upsert("teste", "a", "c", p);		
+	}
+	
     @Override
-    public void upsert(String product, String component, String configuration) {
+    public void upsert(String productName, String componentName, String propertyName, Property value) {
+    	Property p = new Property(value);
+    	p.setDescription(propertyName);
+        p.setComponent(componentName);
+        p.setProduct(productName);
+    	
+    	if(!map.containsKey(productName)){
+    		throw new RuntimeException("NOT FOUND 1");
+    	}
+    	Map<String, Map<String,Property>>  mapComp = map.get(productName);
+    	
+    	if(!mapComp.containsKey(componentName))	{
+    		throw new RuntimeException("NOT FOUND 2");
+    	}
+    	Map<String, Property>  mapConf = mapComp.get(componentName);
+    	
+		mapConf.put(propertyName, p);
+    	
     }
 
     @Override
-    public void insert(String product, String component) {
+    public void insert(String product, String component, Component comp) {
+    	if(!map.containsKey(product) || !mapComponent.containsKey(product)){
+    		throw new RuntimeException("NOT FOUND 1");
+    	}
+    	Map<String, Map<String,Property>>  mapComp = map.get(product);
+    	Map<String, Component> mapComponentObj = mapComponent.get(product);
+    	if(!mapComp.containsKey(component) && !mapComponentObj.containsKey(component)){
+    		mapComp.put(component, new HashMap<String, Property>());
+    		mapComponentObj.put(component, comp);
+    	}
     }
 
     @Override
     public void insert(String product) {
+    	if(!map.containsKey(product) && !mapComponent.containsKey(product) ){
+    		mapComponent.put(product, new HashMap<String, Component>());
+    		map.put(product, new HashMap<String, Map<String, Property>>());
+    		
+    	}	
     }
 
     @Override
-    public String get(String product, String component, String configuration) {
-        return StringUtils.EMPTY;
+    public Property get(String product, String component, String configuration) {
+    	
+    	Map<String, Map<String,Property>>  mapComp = map.get(product);
+    	if(mapComp == null){
+    		throw new RuntimeException("NOT FOUND");
+    	}
+    	
+    	Map<String, Property>  mapConf = mapComp.get(component);
+    	if(mapConf == null){
+    		throw new RuntimeException("NOT FOUND");
+    	}
+    	
+        return mapConf.get(configuration);
     }
 
     @Override
-    public String get(String product, String component) {
-        return StringUtils.EMPTY;
+    public Component get(String product, String component) {
+    	
+    	Map<String, Map<String,Property>>  mapComp = map.get(product);
+    	Map<String, Component> mapComponentObj = mapComponent.get(product);
+    	if(mapComp == null || mapComponentObj == null){
+    		throw new RuntimeException("NOT FOUND");
+    	}
+    	
+    	Map<String, Property>  mapConf = mapComp.get(component);
+    	if(mapConf == null){
+    		throw new RuntimeException("NOT FOUND");
+    	}
+    	
+    	Component result = mapComponentObj.get(component);
+    	if(result == null){
+    		return null;
+    	}
+    	
+    	result.setProperties(mapConf.values());
+    	
+        return result; 
     }
 
     @Override
