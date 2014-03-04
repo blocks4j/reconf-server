@@ -12,21 +12,4 @@
         <servlet-name>reconf-server</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
-
-	<!-- 
-    <filter>
-       <filter-name>auditing-filter</filter-name>
-       <filter-class>reconf.server.filter.AuditingFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-       <filter-name>auditing-filter</filter-name>
-       <url-pattern>/*</url-pattern>
-       <dispatcher>ERROR</dispatcher>
-       <dispatcher>FORWARD</dispatcher>
-       <dispatcher>INCLUDE</dispatcher>
-       <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-    -->
-
 </web-app>

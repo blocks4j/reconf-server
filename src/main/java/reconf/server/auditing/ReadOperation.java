@@ -17,11 +17,9 @@ package reconf.server.auditing;
 
 import java.util.*;
 import javax.servlet.http.*;
-import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import org.apache.commons.collections.*;
 import org.apache.commons.lang3.*;
-import reconf.server.filter.*;
 
 public class ReadOperation {
 
@@ -31,7 +29,7 @@ public class ReadOperation {
     public String getRequestUser() {
         return requestUser;
     }
-    @HeaderParam(AuditingFilter.USER_HEADER)
+
     public void setRequestUser(String requestUser) {
         this.requestUser = StringUtils.defaultString(StringUtils.trim(requestUser));
     }

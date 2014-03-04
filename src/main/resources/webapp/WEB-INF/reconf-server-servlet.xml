@@ -21,4 +21,8 @@
     <bean id="VERSION" class="java.lang.String">
        <constructor-arg value="${project.version}"/>
     </bean>
+
+    <bean id="DOMAIN" class="java.lang.String">
+       <constructor-arg value="http://reconf-server.appspot.com/"/>
+    </bean>
 </beans>

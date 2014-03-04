@@ -13,28 +13,24 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.filter;
+package reconf.server.rest;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.net.*;
 
-public class AuditingFilter implements Filter {
+public class HttpLinkHeader {
 
-    public static final String BODY_HEADER = "auditingBody";
-    public static final String USER_HEADER = "auditingUser";
+    private String value;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public HttpLinkHeader(URI href, String rel) {
+        value = "<" + href + ">; rel=\"" + rel + "\"";
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        chain.doFilter(new ResettableStreamHttpServletRequest((HttpServletRequest) request), response);
+    public String toString() {
+        return value;
     }
 
-    @Override
-    public void destroy() {
+    public static String getHeaderName() {
+        return "Link";
     }
-
 }

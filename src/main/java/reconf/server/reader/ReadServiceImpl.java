@@ -15,64 +15,51 @@
  */
 package reconf.server.reader;
 
-import java.net.URI;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.UriBuilder;
-
-import org.springframework.stereotype.Controller;
-
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+import reconf.server.domain.*;
 import reconf.server.domain.Component;
-import reconf.server.domain.Property;
-import reconf.server.persistence.ConfigurationRepository;
+import reconf.server.persistence.*;
+import reconf.server.rest.*;
 
 @Controller
 public class ReadServiceImpl implements ReadService {
 
-    @Override
-    public Property getProperty(@PathParam("product") String product, 
-    							@PathParam("component") String component, 
-    							@PathParam("property") String property) {
-        Property result = ConfigurationRepository.DEFAULT.get(product, component, property);
-
-//        if (result == "") {
-//            return Response.status(Response.Status.NOT_FOUND).build();
-//        }
-        
-        return result;
-        
-        //return Response.ok().entity(p).build();
-    }
+    @Autowired @Qualifier("DOMAIN") private String baseURI;
 
     @Override
-    public void putProperty(@PathParam("product") String product, 
-			@PathParam("component") String component, 
-			@PathParam("property") String propertyName,
-    		Property property) {
+    public void putProperty(String product, String component, String propertyName, Property property) {
     	ConfigurationRepository.DEFAULT.upsert(product, component, propertyName, property);
-    	
-    	URI configURI = UriBuilder.fromPath(ReadService.PROD_COMP_PROP).build(property.getProduct(),property.getComponent(), property.getName());
-    	
+    	//UriBuilder.fromPath(ReadService.PROD_COMP_PROP).build(property.getProduct(),property.getComponent(), property.getName());
+
 		//return Response.created(configURI).build();
-		
+
     }
 
 	@Override
-	@GET
-	@Path("product/{productName}/component/{componentName}/property")
 	public Component getComponent(
 			@PathParam("productName") String productName,
 			@PathParam("componentName") String componentName) {
-		
+
 		return ConfigurationRepository.DEFAULT.get(productName, componentName);
 	}
 
-    
-//    @Override
-//    public Response getComponent(@Form ReadOperation op, @Form ReadRequest req) {
-//        return null;
-//    }
+    public Response getPropertyV1(String product, String component, String property) {
+        Property result = ConfigurationRepository.DEFAULT.get(product, component, property);
+        ResponseBuilder resp = Response.ok(result.getValue());
+        resp.header(HttpLinkHeader.getHeaderName(), new HttpLinkHeader(UriBuilder.fromPath(baseURI + ReadService.PROD_COMP_PROP).build(product, component, property), "self").toString());
+        resp.header(HttpLinkHeader.getHeaderName(), new HttpLinkHeader(UriBuilder.fromPath(baseURI + ReadService.PROD_COMP_PROP).build(product, component, property), "update").toString());
+        return resp.build();
+    }
 
+    public Response getPropertyV2(String product, String component, String property) {
+        Property result = ConfigurationRepository.DEFAULT.get(product, component, property);
+        result.getRest().addLink(UriBuilder.fromPath(baseURI + ReadService.PROD_COMP_PROP).build(product, component, property), "self");
+        result.getRest().addLink(UriBuilder.fromPath(baseURI + ReadService.PROD_COMP_PROP).build(product, component, property), "update");
+        result.getRest().addLink(UriBuilder.fromPath(baseURI + ReadService.PROD_COMP_PROP).build(product, component, property), "remove");
+        return Response.ok(result).build();
+    }
 }
