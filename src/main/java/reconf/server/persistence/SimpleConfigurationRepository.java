@@ -53,6 +53,7 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
     @Override
     public Property upsert(String productName, String componentName, String propertyName, Property value) {
     	Property p = new Property(value);
+    	p.setName(propertyName);
     	p.setDescription(propertyName);
         p.setComponent(componentName);
         p.setProduct(productName);
@@ -69,8 +70,16 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
     	Map<String, Property>  mapConf = mapComp.get(componentName);
     	Component component = mapComponents.get(componentName);
 
+
+		if(!component.getProperties().add(p)){
+		    component.getProperties().remove(p);
+		    if(!component.getProperties().add(p)){
+		        throw new RuntimeException("NOT CHANGED");
+		    }
+
+		}
 		mapConf.put(propertyName, p);
-		component.getProperties().add(p);
+
 		return p;
 
     }
@@ -86,8 +95,15 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
 
     	if(!mapComp.containsKey(component) && !mapComponentObj.containsKey(component)){
     		mapComp.put(component, new HashMap<String, Property>());
+    		if(!prod.getComponents().add(comp)){
+    		    prod.getComponents().remove(comp);
+	            if(!prod.getComponents().add(comp)){
+	                throw new RuntimeException("NOT CHANGED");
+	            }
+
+	        }
     		mapComponentObj.put(component, comp);
-    		prod.getComponents().add(comp);
+
     	}
     }
 
