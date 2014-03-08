@@ -26,20 +26,78 @@ public interface ReadService {
 
     final String ROOT = "/";
 
-    final String PROD_COMP_PROP = "product/{productName}/component/{componentName}/property/{propertyName}";
-    final String PROD_COMP = "product/{productName}/component/{componentName}";
+    final String PROD = "product/{productName}";
+    final String PROD_COMP = PROD + "/component/{componentName}";
+    final String PROD_COMP_PROPS = PROD_COMP + "/property";
+    final String PROD_COMP_PROP = PROD_COMP_PROPS + "/{propertyName}";
+
+
+    final String PRODv1 = "{productName}";
+    final String PROD_COMPv1 = PRODv1 + "/{componentName}";
+    final String PROD_COMP_PROPv1 = PROD_COMPv1 + "/{propertyName}";
+
+
 
     @GET
     @Path(PROD_COMP)
     Component getComponent(@PathParam("productName") String product,
     		@PathParam("componentName") String component);
 
+    /* V1 */
+
+
+    /*/property */
+
     @GET
-    @Path(PROD_COMP_PROP)
+    @Path(PROD_COMP_PROPS)
+    @Consumes({MediaType.TEXT_PLAIN, "application/vnd.reconf-v1+text"})
+    @Produces({"application/vnd.reconf-v1+text"})
+    Response getPropertiesV1apiV2(@PathParam("productName") String product, @PathParam("componentName") String component);
+
+
+    /*/property/{propertyName} */
+
+    @GET
+    @Path(PROD_COMP_PROPv1)
     @Consumes({MediaType.TEXT_PLAIN, "application/vnd.reconf-v1+text"})
     @Produces({"application/vnd.reconf-v1+text"})
     Response getPropertyV1(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String property);
 
+    @GET
+    @Path(PROD_COMP_PROP)
+    @Consumes({MediaType.TEXT_PLAIN, "application/vnd.reconf-v1+text"})
+    @Produces({"application/vnd.reconf-v1+text"})
+    Response getPropertyV1apiV2(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String property);
+
+    /*
+    @DELETE
+    @Path(PROD_COMP_PROPv1)
+    @Consumes({MediaType.TEXT_PLAIN, "application/vnd.reconf-v1+text"})
+    @Produces({"application/vnd.reconf-v1+text"})
+    Response deletePropertyV1(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String property);
+
+    @DELETE
+    @Path(PROD_COMP_PROPv1)
+    @Consumes({MediaType.TEXT_PLAIN, "application/vnd.reconf-v1+text"})
+    @Produces({"application/vnd.reconf-v1+text"})
+    Response deletePropertyV1apiV2(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String property);
+    */
+
+
+    /* V2 */
+
+
+    /*/property */
+
+    @GET
+    @Path(PROD_COMP_PROPS)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response getPropertiesV2(@PathParam("productName") String product, @PathParam("componentName") String component);
+
+
+
+    /*/property/{propertyName} */
 
     @GET
     @Path(PROD_COMP_PROP)
@@ -49,10 +107,24 @@ public interface ReadService {
 
     @PUT
     @Path(PROD_COMP_PROP)
-    public void putProperty(@PathParam("productName") String product,
-			@PathParam("componentName") String component,
-			@PathParam("propertyName") String propertyName,
-    		Property property);
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response putPropertyV2(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String propertyName, Property property);
+
+
+    @DELETE
+    @Path(PROD_COMP_PROP)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response deletePropertyV2(@PathParam("productName") String product, @PathParam("componentName") String component, @PathParam("propertyName") String property);
+
+
+//    @PUT
+//    @Path(PROD_COMP_PROP)
+//    public void putProperty(@PathParam("productName") String product,
+//			@PathParam("componentName") String component,
+//			@PathParam("propertyName") String propertyName,
+//    		Property property);
 
     /*
     @GET

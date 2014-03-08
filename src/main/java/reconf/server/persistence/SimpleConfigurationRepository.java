@@ -25,61 +25,78 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
 
 	private Map<String, Map<String, Component>> mapComponent = new HashMap<>();
 
-//	private Map<String, Product> mapProduct = new HashMap<>();
-
-
+	private Map<String, Product> mapProduct = new HashMap<>();
 
 	{
-		this.insert("teste");
+	    Product prod = new Product();
+	    prod.setName("teste");
+	    prod.setDescription("teste desc");
+		this.insert("teste", prod);
+
 		Component comp = new Component();
 		comp.setName("a");
 		this.insert("teste","a",comp);
+
 		Property p = new Property();
 		p.setName("c");
 		p.setValue("funciona");
 		this.upsert("teste", "a", "c", p);
+
+        p = new Property();
+        p.setName("p1");
+        p.setValue("testando");
+        this.upsert("teste", "a", "p1", p);
+
+
 	}
 
     @Override
-    public void upsert(String productName, String componentName, String propertyName, Property value) {
+    public Property upsert(String productName, String componentName, String propertyName, Property value) {
     	Property p = new Property(value);
     	p.setDescription(propertyName);
         p.setComponent(componentName);
         p.setProduct(productName);
 
-    	if(!map.containsKey(productName)){
-    		throw new RuntimeException("NOT FOUND 1");
+    	if(!map.containsKey(productName) || !mapProduct.containsKey(productName) || !mapComponent.containsKey(productName)){
+    		return null;
     	}
     	Map<String, Map<String,Property>>  mapComp = map.get(productName);
+    	Map<String, Component> mapComponents = mapComponent.get(productName);
 
-    	if(!mapComp.containsKey(componentName))	{
-    		throw new RuntimeException("NOT FOUND 2");
+    	if(!mapComp.containsKey(componentName) || !mapComponents.containsKey(componentName))	{
+    		return null;
     	}
     	Map<String, Property>  mapConf = mapComp.get(componentName);
+    	Component component = mapComponents.get(componentName);
 
 		mapConf.put(propertyName, p);
+		component.getProperties().add(p);
+		return p;
 
     }
 
     @Override
     public void insert(String product, String component, Component comp) {
-    	if(!map.containsKey(product) || !mapComponent.containsKey(product)){
+    	if(!map.containsKey(product) || !mapProduct.containsKey(product) || !mapComponent.containsKey(product)){
     		throw new RuntimeException("NOT FOUND 1");
     	}
     	Map<String, Map<String,Property>>  mapComp = map.get(product);
+    	Product prod = mapProduct.get(product);
     	Map<String, Component> mapComponentObj = mapComponent.get(product);
+
     	if(!mapComp.containsKey(component) && !mapComponentObj.containsKey(component)){
     		mapComp.put(component, new HashMap<String, Property>());
     		mapComponentObj.put(component, comp);
+    		prod.getComponents().add(comp);
     	}
     }
 
     @Override
-    public void insert(String product) {
-    	if(!map.containsKey(product) && !mapComponent.containsKey(product) ){
+    public void insert(String product, Product value) {
+    	if(!map.containsKey(product) && !mapComponent.containsKey(product) && !mapProduct.containsKey(product)){
     		mapComponent.put(product, new HashMap<String, Component>());
     		map.put(product, new HashMap<String, Map<String, Property>>());
-
+    		mapProduct.put(product, value);
     	}
     }
 
@@ -88,12 +105,12 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
 
     	Map<String, Map<String,Property>>  mapComp = map.get(product);
     	if(mapComp == null){
-    		throw new RuntimeException("NOT FOUND");
+    		return null;
     	}
 
     	Map<String, Property>  mapConf = mapComp.get(component);
     	if(mapConf == null){
-    		throw new RuntimeException("NOT FOUND");
+    		return null;
     	}
 
         return mapConf.get(configuration);
@@ -105,22 +122,17 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
     	Map<String, Map<String,Property>>  mapComp = map.get(product);
     	Map<String, Component> mapComponentObj = mapComponent.get(product);
     	if(mapComp == null || mapComponentObj == null){
-    		throw new RuntimeException("NOT FOUND");
+    		return null;
     	}
 
     	Map<String, Property>  mapConf = mapComp.get(component);
     	if(mapConf == null){
-    		throw new RuntimeException("NOT FOUND");
-    	}
-
-    	Component result = mapComponentObj.get(component);
-    	if(result == null){
     		return null;
     	}
 
-    	result.setProperties(mapConf.values());
+    	Component result = mapComponentObj.get(component);
+    	return result;
 
-        return result;
     }
 
     @Override
@@ -129,15 +141,40 @@ public class SimpleConfigurationRepository implements ConfigurationRepository {
     }
 
     @Override
-    public void delete(String product, String component, String configuration) {
+    public boolean deleted(String productName, String componentName, String propertyName) {
+
+        if(!map.containsKey(productName) || !mapProduct.containsKey(productName) || !mapComponent.containsKey(productName)){
+            return false;
+        }
+        Map<String, Map<String,Property>>  mapComp = map.get(productName);
+        Map<String, Component> mapComponents = mapComponent.get(productName);
+
+        if(!mapComp.containsKey(componentName) || !mapComponents.containsKey(componentName))    {
+            return false;
+        }
+        Map<String, Property>  mapConf = mapComp.get(componentName);
+        Component component = mapComponents.get(componentName);
+
+        if(!mapConf.containsKey(propertyName)){
+            return false;
+        }
+
+        Property p = mapConf.get(propertyName);
+
+        component.getProperties().remove(p);
+        mapConf.remove(propertyName);
+
+        return true;
     }
 
     @Override
-    public void delete(String product, String component) {
+    public boolean deleted(String product, String component) {
+        return false;
     }
 
     @Override
-    public void delete(String product) {
+    public boolean deleted(String product) {
+        return false;
     }
 
 }

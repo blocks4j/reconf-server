@@ -2,18 +2,15 @@ package reconf.server.domain;
 
 import java.util.*;
 import javax.xml.bind.annotation.*;
-import org.jboss.resteasy.annotations.providers.jaxb.json.*;
-import org.jboss.resteasy.links.*;
 
-@Mapped(namespaceMap = @XmlNsMap(jsonName = "atom", namespace = "http://www.w3.org/2005/Atom"))
+
 @XmlRootElement
 public class Component {
 
     private String product;
     private String name;
     private String description;
-    private List<Property> properties = new ArrayList<>();
-    private RESTServiceDiscovery rest;
+    private Set<Property> properties = new HashSet<>();
 
     public Component(Component p) {
     	this.product = p.product;
@@ -52,22 +49,36 @@ public class Component {
 
 	@XmlElementWrapper(name="properties")
 	@XmlElement(name="property")
-	public Collection<Property> getProperties() {
+	public Set<Property> getProperties() {
 		return properties;
 	}
-	public void setProperties(Collection<Property> properties) {
+	public void setProperties(Set<Property> properties) {
 	    if (properties != null) {
 	        this.properties.clear();
 	        this.properties.addAll(properties);
 	    }
 	}
 
-	@XmlElementRef
-	public RESTServiceDiscovery getRest() {
-		return rest;
-	}
-	public void setRest(RESTServiceDiscovery rest) {
-		this.rest = rest;
-	}
+    @Override
+    public int hashCode() {
+        String s = this.product + ":" + this.name;
+        return s.hashCode();
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if(! (obj instanceof Component)){
+            return false;
+        }
+        Component p = (Component) obj;
+        if(!this.product.equals(p.product)){
+            return false;
+        }
+        if(!this.name.equals(p.name)){
+            return false;
+        }
+        return true;
+    }
 
 }
