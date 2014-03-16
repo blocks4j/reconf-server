@@ -1,5 +1,6 @@
 package reconf.server.domain;
 
+import java.io.*;
 import java.net.*;
 import javax.xml.bind.annotation.*;
 
@@ -7,10 +8,12 @@ import javax.xml.bind.annotation.*;
  * @author mbroinizi
  */
 
-public class Relation {
+public class Relation implements Serializable{
 
 
-    public enum Type {SELF, LIST, UPDATE, REMOVE, ADD;
+    private static final long serialVersionUID = 1L;
+
+    public enum Type implements Serializable {SELF, LIST, UPDATE, REMOVE, ADD;
         @Override
         public String toString() {
             return name().toLowerCase();

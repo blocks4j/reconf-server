@@ -26,8 +26,11 @@ public interface ReadService {
 
     final String ROOT = "/";
 
-    final String PROD = "product/{productName}";
-    final String PROD_COMP = PROD + "/component/{componentName}";
+
+    final String PRODS = "product";
+    final String PROD = PRODS + "/{productName}";
+    final String PROD_COMPS = PROD + "/component";
+    final String PROD_COMP = PROD_COMPS + "/{componentName}";
     final String PROD_COMP_PROPS = PROD_COMP + "/property";
     final String PROD_COMP_PROP = PROD_COMP_PROPS + "/{propertyName}";
 
@@ -86,8 +89,64 @@ public interface ReadService {
 
     /* V2 */
 
+    /*/product */
 
-    /*/property */
+    @GET
+    @Path(PRODS)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response getProductsV2();
+
+    /*/product/{productName} */
+
+    @GET
+    @Path(PROD)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response getProductV2(@PathParam("productName") String product);
+
+    @PUT
+    @Path(PROD)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response putProductV2(@PathParam("productName") String productName, Product product);
+
+    @DELETE
+    @Path(PROD)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response deleteProductV2(@PathParam("productName") String product);
+
+    /*/product/{productName}/component */
+
+    @GET
+    @Path(PROD_COMPS)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response getComponentsV2(@PathParam("productName") String product);
+
+    /*/product/{productName}/component/{componentName} */
+
+    @GET
+    @Path(PROD_COMP)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response getComponentV2(@PathParam("productName") String product, @PathParam("componentName") String component);
+
+    @PUT
+    @Path(PROD_COMP)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response putComponentV2(@PathParam("productName") String product, @PathParam("componentName") String componentName, Component component);
+
+    @DELETE
+    @Path(PROD_COMP)
+    @Consumes({MediaType.APPLICATION_JSON, "application/vnd.reconf-v2+json"})
+    @Produces({"application/vnd.reconf-v2+json"})
+    Response deleteComponentV2(@PathParam("productName") String product, @PathParam("componentName") String component);
+
+
+    /*/product/{productName}/component/{componentName}/property */
 
     @GET
     @Path(PROD_COMP_PROPS)
@@ -97,7 +156,7 @@ public interface ReadService {
 
 
 
-    /*/property/{propertyName} */
+    /*/product/{productName}/component/{componentName}/property/{propertyName} */
 
     @GET
     @Path(PROD_COMP_PROP)

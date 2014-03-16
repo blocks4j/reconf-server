@@ -1,5 +1,6 @@
 package reconf.server.domain;
 
+import java.io.*;
 import java.util.*;
 import javax.xml.bind.annotation.*;
 
@@ -8,11 +9,14 @@ import javax.xml.bind.annotation.*;
  * @author mbroinizi
  */
 @XmlRootElement
-public class Product {
+public class Product implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     private String name;
     private String description;
     private Set<Component> components = new HashSet<>();
+    private Collection<Relation> relations = new ArrayList<>();
 
     public Product(Product p) {
         this.name = p.name;
@@ -40,8 +44,7 @@ public class Product {
         this.description = description;
     }
 
-    @XmlElementWrapper(name="components")
-    @XmlElement(name="component")
+    @XmlElement(name="components")
     public Set<Component> getComponents() {
         return components;
     }
@@ -49,6 +52,17 @@ public class Product {
         if (components != null) {
             this.components.clear();
             this.components.addAll(components);
+        }
+    }
+
+    @XmlElement(name="atom.link")
+    public Collection<Relation> getRelations() {
+        return relations;
+    }
+    public void setRelations(Collection<Relation> relations) {
+        if (relations != null) {
+            this.relations.clear();
+            this.relations.addAll(relations);
         }
     }
 

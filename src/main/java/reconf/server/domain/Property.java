@@ -1,12 +1,15 @@
 package reconf.server.domain;
 
+import java.io.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @Access(AccessType.PROPERTY)
-public class Property {
+public class Property implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     private String name;
     private String product;

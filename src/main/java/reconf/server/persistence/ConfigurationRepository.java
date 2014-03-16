@@ -15,6 +15,7 @@
  */
 package reconf.server.persistence;
 
+import java.util.*;
 import reconf.server.domain.*;
 
 public interface ConfigurationRepository {
@@ -22,12 +23,13 @@ public interface ConfigurationRepository {
     ConfigurationRepository DEFAULT = new SimpleConfigurationRepository();
 
     Property upsert(String product, String component, String configuration, Property value);
-    void insert(String product, String component, Component comp);
-    void insert(String product, Product prod);
+    Component upsert(String product, String component, Component comp);
+    Product upsert(String product, Product prod);
     Property get(String product, String component, String configuration);
     Component get(String product, String component);
-    String get(String product);
+    Product get(String product);
     boolean deleted(String product, String component, String configuration);
     boolean deleted(String product, String component);
     boolean deleted(String product);
+    Collection<Product> getProducts();
 }
