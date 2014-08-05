@@ -1,111 +1,86 @@
+/*
+ *    Copyright 1996-2014 UOL Inc
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package reconf.server.domain;
 
 import java.io.*;
-import java.util.*;
 import javax.persistence.*;
-import javax.xml.bind.annotation.*;
 
-@XmlRootElement
-@Access(AccessType.PROPERTY)
+@Entity
 public class Property implements Serializable{
 
     private static final long serialVersionUID = 1L;
-
-    private String name;
-    private String product;
-    private String component;
+    private PropertyKey key;
     private String value;
     private String description;
-    private Collection<Relation> relations = new ArrayList<>();
 
-    public Property(Property p) {
-    	this.product = p.product;
-    	this.component = p.component;
-		this.name = p.name;
-		this.value = p.value;
-		this.description = p.description;
-	}
+    public Property() { }
 
-	public Property() {
-	}
-
-    @XmlElement
-    @XmlID
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@XmlElement
-	public String getValue() {
-		return value;
-	}
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-    @XmlElement
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-    @XmlElement
-    @XmlID
-	public String getProduct() {
-		return product;
-	}
-	public void setProduct(String product) {
-		this.product = product;
-	}
-
-    @XmlElement
-    @XmlID
-	public String getComponent() {
-		return component;
-	}
-	public void setComponent(String component) {
-		this.component = component;
-	}
-
-    @XmlElement(name="atom.link")
-	public Collection<Relation> getRelations() {
-        return relations;
+    public Property(PropertyKey key, String value) {
+        this.key = key;
+        this.value = value;
     }
-    public void setRelations(Collection<Relation> relations) {
-        if (relations != null) {
-            this.relations.clear();
-            this.relations.addAll(relations);
-        }
+
+    public Property(PropertyKey key, String value, String description) {
+        this.key = key;
+        this.value = value;
+        this.description = description;
+    }
+
+    @EmbeddedId
+    public PropertyKey getKey() {
+        return key;
+    }
+    public void setKey(PropertyKey key) {
+        this.key = key;
+    }
+
+    @Column(nullable=false, name="property_name") @Lob
+    public String getValue() {
+        return value;
+    }
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Column(nullable=true, length=4096, name="property_desc")
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
     public int hashCode() {
-        String s = this.product + ":" + this.component + ":" + this.name;
-        return s.hashCode();
+        if (key == null) {
+            return super.hashCode();
+        }
+        return key.hashCode();
     }
-
 
     @Override
     public boolean equals(Object obj) {
-        if(! (obj instanceof Property)){
+        if(obj == null || !(obj instanceof Property)) {
             return false;
         }
-        Property p = (Property) obj;
-        if(!this.product.equals(p.product)){
+        Property rhs = (Property) obj;
+        if (rhs.key == null) {
             return false;
         }
-        if(!this.component.equals(p.component)){
-            return false;
-        }
-        if(!this.name.equals(p.name)){
-            return false;
-        }
-        return true;
+        return key.equals(rhs.key);
     }
 
 }
