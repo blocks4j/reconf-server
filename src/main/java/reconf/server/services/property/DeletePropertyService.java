@@ -36,15 +36,21 @@ public class DeletePropertyService {
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
-            @RequestBody(required=true) String value,
             @RequestParam(required=false, value="hostname") String hostname) {
 
         PropertyKey key = new PropertyKey(product, component, property, hostname);
-        Property target = properties.findOne(key);
-        if (target == null) {
+        if (PropertyValidator.containsErrors(key)) {
+            return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (!properties.exists(key)) {
             return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
         }
         properties.delete(key);
         return new ResponseEntity<Object>(HttpStatus.OK);
+    }
+
+    public void setProperties(PropertyRepository properties) {
+        this.properties = properties;
     }
 }

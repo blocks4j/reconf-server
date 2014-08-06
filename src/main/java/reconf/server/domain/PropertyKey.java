@@ -17,8 +17,10 @@ package reconf.server.domain;
 
 import java.io.*;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import org.apache.commons.lang3.*;
 import org.apache.commons.lang3.builder.*;
+import org.hibernate.validator.constraints.*;
 
 @Embeddable
 public class PropertyKey implements Serializable {
@@ -59,6 +61,7 @@ public class PropertyKey implements Serializable {
 
 
     @Column(length=256, name="property_name")
+    @NotBlank @NotNull @Size(min=1, max=256)
     public String getName() {
         return name;
     }
@@ -67,6 +70,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="product_name")
+    @NotBlank @NotNull @Size(min=1, max=256)
     public String getProduct() {
         return product;
     }
@@ -75,6 +79,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="component_name")
+    @NotBlank @NotNull @Size(min=1, max=256)
     public String getComponent() {
         return component;
     }
@@ -83,6 +88,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="cluster_name")
+    @Size(min=0, max=256)
     public String getCluster() {
         return cluster;
     }
@@ -91,6 +97,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="host_name")
+    @Size(min=0, max=256)
     public String getHostName() {
         return hostName;
     }

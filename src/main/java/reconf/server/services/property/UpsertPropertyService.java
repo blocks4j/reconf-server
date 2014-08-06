@@ -40,13 +40,17 @@ public class UpsertPropertyService {
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
             @RequestBody(required=true) String value,
-            @RequestParam(required=false, value="hostname") String hostname,
+            @RequestParam(required=false, value="hostname") String hostName,
             @RequestParam(required=false, value="description") String description,
             HttpServletRequest request) {
 
         HttpStatus status = null;
 
-        PropertyKey key = new PropertyKey(product, component, property, hostname);
+        PropertyKey key = new PropertyKey(product, component, property, hostName);
+        if (PropertyValidator.containsErrors(key) || StringUtils.isEmpty(value)) {
+            return new ResponseEntity<PropertyResult>(HttpStatus.BAD_REQUEST);
+        }
+
         Property target = properties.findOne(key);
         if (target != null) {
             target.setValue(value);

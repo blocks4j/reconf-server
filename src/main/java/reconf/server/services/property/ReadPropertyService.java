@@ -36,7 +36,12 @@ public class ReadPropertyService {
             @PathVariable("prop") String property,
             @RequestParam(value="instance", required=false) String hostName) {
 
-        Property fromDB = properties.findOne(new PropertyKey(product, component, property, hostName));
+        PropertyKey key = new PropertyKey(product, component, property, hostName);
+        if (PropertyValidator.containsErrors(key)) {
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        }
+
+        Property fromDB = properties.findOne(key);
         if (fromDB != null) {
             return new ResponseEntity<String>(fromDB.getValue(), HttpStatus.OK);
         }
