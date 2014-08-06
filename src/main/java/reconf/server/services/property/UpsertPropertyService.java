@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services;
+package reconf.server.services.property;
 
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
@@ -29,7 +29,7 @@ import reconf.server.domain.result.*;
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
     produces="application/json",
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
-public class UpsertService {
+public class UpsertPropertyService {
 
     @Autowired private PropertyRepository properties;
 
@@ -44,18 +44,22 @@ public class UpsertService {
             @RequestParam(required=false, value="description") String description,
             HttpServletRequest request) {
 
+        HttpStatus status = null;
+
         PropertyKey key = new PropertyKey(product, component, property, hostname);
         Property target = properties.findOne(key);
         if (target != null) {
             target.setValue(value);
             target.setDescription(description);
+            status = HttpStatus.OK;
 
         } else {
             target = new Property(key, value);
             target.setDescription(description);
             properties.save(target);
+            status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<PropertyResult>(new PropertyResult(target, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<PropertyResult>(new PropertyResult(target, getBaseUrl(request)), status);
     }
 
     private String getBaseUrl(HttpServletRequest req) {

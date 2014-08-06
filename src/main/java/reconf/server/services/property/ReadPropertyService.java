@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services;
+package reconf.server.services.property;
 
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;

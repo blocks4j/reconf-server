@@ -15,12 +15,8 @@
  */
 package reconf.server.domain;
 
-import org.springframework.data.domain.*;
 import org.springframework.data.repository.*;
 
-public interface PropertyRepository extends Repository<Property, PropertyKey> {
+public interface PropertyRepository extends CrudRepository<Property, PropertyKey> {
 
-    Page<Property> findAll(Pageable pageable);
-    Property save(Property prop);
-    Property findOne(PropertyKey key);
 }
