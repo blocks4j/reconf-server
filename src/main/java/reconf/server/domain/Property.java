@@ -19,7 +19,8 @@ import java.io.*;
 import javax.persistence.*;
 
 @Entity
-public class Property implements Serializable{
+@Table(name="reconf_property_v1")
+public class Property implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private PropertyKey key;
@@ -47,7 +48,8 @@ public class Property implements Serializable{
         this.key = key;
     }
 
-    @Column(nullable=false, name="property_name") @Lob
+    @Column(nullable=false, name="property_value", length=Integer.MAX_VALUE)
+    @Lob
     public String getValue() {
         return value;
     }

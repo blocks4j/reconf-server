@@ -33,12 +33,12 @@ public class PropertyKey implements Serializable {
     public PropertyKey() {
     }
 
-    public PropertyKey(String product, String component, String name, String cluster, String hostName) {
+    public PropertyKey(String product, String component, String name, String hostName, String cluster) {
         setProduct(product);
         setComponent(component);
         setName(name);
-        setCluster(cluster);
         setHostName(hostName);
+        setCluster(cluster);
     }
 
     public PropertyKey(String product, String component, String name, String hostName) {
@@ -46,9 +46,19 @@ public class PropertyKey implements Serializable {
         setComponent(component);
         setName(name);
         setHostName(hostName);
+        setCluster(StringUtils.EMPTY);
     }
 
-    @Column(nullable=false, length=256, name="property_name")
+    public PropertyKey(String product, String component, String name) {
+        setProduct(product);
+        setComponent(component);
+        setName(name);
+        setHostName(StringUtils.EMPTY);
+        setCluster(StringUtils.EMPTY);
+    }
+
+
+    @Column(length=256, name="property_name")
     public String getName() {
         return name;
     }
@@ -56,7 +66,7 @@ public class PropertyKey implements Serializable {
         this.name = StringUtils.lowerCase(StringUtils.defaultString(name));
     }
 
-    @Column(nullable=false, length=256, name="product_name")
+    @Column(length=256, name="product_name")
     public String getProduct() {
         return product;
     }
@@ -64,7 +74,7 @@ public class PropertyKey implements Serializable {
         this.product = StringUtils.lowerCase(StringUtils.defaultString(product));
     }
 
-    @Column(nullable=false, length=256, name="component_name")
+    @Column(length=256, name="component_name")
     public String getComponent() {
         return component;
     }
@@ -72,7 +82,7 @@ public class PropertyKey implements Serializable {
         this.component = StringUtils.lowerCase(StringUtils.defaultString(component));
     }
 
-    @Column(nullable=true, length=256, name="cluster_name")
+    @Column(length=256, name="cluster_name")
     public String getCluster() {
         return cluster;
     }
@@ -80,7 +90,7 @@ public class PropertyKey implements Serializable {
         this.cluster = StringUtils.lowerCase(StringUtils.defaultString(cluster));
     }
 
-    @Column(nullable=true, length=256, name="host_name")
+    @Column(length=256, name="host_name")
     public String getHostName() {
         return hostName;
     }

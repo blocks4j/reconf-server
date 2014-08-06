@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.application;
+package reconf.server;
 
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.boot.builder.*;
@@ -24,11 +24,12 @@ import org.springframework.context.annotation.*;
 @EnableAutoConfiguration
 public class ReConfServerApplication {
 
+    public static final String CRUD_ROOT = "/crud";
+
     public static void main(String[] args) {
         new SpringApplicationBuilder()
         .showBanner(false)
         .sources(ReConfServerApplication.class)
         .run(args);
-        //SpringApplication.run(ReConfServerApplication.class, args);
     }
 }

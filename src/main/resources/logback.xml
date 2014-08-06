@@ -23,9 +23,31 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/export/logs/reconf-server/reconf-server.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
-            <maxHistory>90</maxHistory>
+            <maxHistory>3</maxHistory>
         </rollingPolicy>
     </appender>
+
+    <appender name="SQL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Append>true</Append>
+        <File>/export/logs/reconf-server/reconf-server-sql.log</File>
+        <encoder>
+            <pattern>[%d{dd-MM-yyyy HH:mm:ss,UTC}] %p %c - %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/export/logs/reconf-server/reconf-server-sql.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.hibernate.type" additivity="false" level="TRACE">
+        <appender-ref ref="SQL" />
+    </logger>
+    <logger name="org.hibernate.SQL" additivity="false" level="DEBUG">
+        <appender-ref ref="SQL" />
+    </logger>
+    <logger name="org.hibernate" additivity="false" level="INFO">
+        <appender-ref ref="SQL" />
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="A1" />
