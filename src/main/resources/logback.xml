@@ -39,14 +39,18 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="org.hibernate.type" additivity="false" level="TRACE">
+    <logger name="org.hibernate.type" additivity="false" level="OFF">
         <appender-ref ref="SQL" />
     </logger>
-    <logger name="org.hibernate.SQL" additivity="false" level="DEBUG">
+    <logger name="org.hibernate.SQL" additivity="false" level="OFF">
         <appender-ref ref="SQL" />
     </logger>
-    <logger name="org.hibernate" additivity="false" level="INFO">
+    <logger name="org.hibernate" additivity="false" level="WARN">
         <appender-ref ref="SQL" />
+    </logger>
+
+    <logger name="org.springframework" additivity="false" level="WARN">
+        <appender-ref ref="A1" />
     </logger>
 
     <root level="INFO">
