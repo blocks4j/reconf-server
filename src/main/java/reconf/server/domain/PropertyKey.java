@@ -1,5 +1,5 @@
 /*
- *    Copyright 1996-2014 UOL Inc
+ *    Copyright 2013-2014 ReConf Team
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -30,24 +30,24 @@ public class PropertyKey implements Serializable {
     private String product;
     private String component;
     private String cluster;
-    private String hostName;
+    private String instance;
 
     public PropertyKey() {
     }
 
-    public PropertyKey(String product, String component, String name, String hostName, String cluster) {
+    public PropertyKey(String product, String component, String name, String instance, String cluster) {
         setProduct(product);
         setComponent(component);
         setName(name);
-        setHostName(hostName);
+        setInstance(instance);
         setCluster(cluster);
     }
 
-    public PropertyKey(String product, String component, String name, String hostName) {
+    public PropertyKey(String product, String component, String name, String instance) {
         setProduct(product);
         setComponent(component);
         setName(name);
-        setHostName(hostName);
+        setInstance(instance);
         setCluster(StringUtils.EMPTY);
     }
 
@@ -55,7 +55,7 @@ public class PropertyKey implements Serializable {
         setProduct(product);
         setComponent(component);
         setName(name);
-        setHostName(StringUtils.EMPTY);
+        setInstance(StringUtils.EMPTY);
         setCluster(StringUtils.EMPTY);
     }
 
@@ -96,26 +96,28 @@ public class PropertyKey implements Serializable {
         this.cluster = StringUtils.lowerCase(StringUtils.defaultString(cluster));
     }
 
-    @Column(length=256, name="host_name")
+    @Column(length=256, name="instance_name")
     @Size(min=0, max=256)
-    public String getHostName() {
-        return hostName;
+    public String getInstance() {
+        return instance;
     }
-    public void setHostName(String hostName) {
-        this.hostName = StringUtils.lowerCase(StringUtils.defaultString(hostName));
+    public void setInstance(String instance) {
+        this.instance = StringUtils.lowerCase(StringUtils.defaultString(instance));
     }
 
     @Override
     public int hashCode() {
+        if (product == null || component == null | name == null) {
+            return super.hashCode();
+        }
         return new HashCodeBuilder()
             .append(product)
             .append(component)
             .append(name)
             .append(cluster)
-            .append(hostName)
+            .append(instance)
             .hashCode();
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -128,7 +130,7 @@ public class PropertyKey implements Serializable {
             .append(component, rhs.component)
             .append(name, rhs.name)
             .append(cluster, rhs.cluster)
-            .append(hostName, rhs.hostName)
+            .append(instance, rhs.instance)
             .isEquals();
     }
 }

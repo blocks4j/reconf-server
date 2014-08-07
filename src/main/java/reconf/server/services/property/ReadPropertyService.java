@@ -1,5 +1,5 @@
 /*
- *    Copyright 1996-2014 UOL Inc
+ *    Copyright 2013-2014 ReConf Team
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
+import reconf.server.repository.*;
 
 
 @RestController
@@ -34,10 +35,10 @@ public class ReadPropertyService {
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
-            @RequestParam(value="instance", required=false) String hostName) {
+            @RequestParam(value="instance", required=false) String instance) {
 
-        PropertyKey key = new PropertyKey(product, component, property, hostName);
-        if (PropertyValidator.containsErrors(key)) {
+        PropertyKey key = new PropertyKey(product, component, property, instance);
+        if (DomainValidator.containsErrors(key)) {
             return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
         }
 

@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services.property;
+package reconf.server.services.product;
 
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
@@ -30,55 +30,47 @@ import reconf.server.repository.*;
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
     produces="application/json",
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
-public class UpsertPropertyService {
+public class UpsertProductService {
 
-    @Autowired private PropertyRepository properties;
     @Autowired private ProductRepository products;
 
-    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.PUT)
+    @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional
-    public ResponseEntity<PropertyResult> doIt(
+    public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
-            @PathVariable("comp") String component,
-            @PathVariable("prop") String property,
-            @RequestBody(required=true) String value,
-            @RequestParam(required=false, value="instance") String instance,
             @RequestParam(required=false, value="description") String description,
             HttpServletRequest request) {
 
-        PropertyKey key = new PropertyKey(product, component, property, instance);
-        HttpStatus status = checkForErrors(key, value);
+        Product fromRequest = new Product(product, description);
+        HttpStatus status = checkForErrors(fromRequest);
         if (status.is4xxClientError()) {
-            return new ResponseEntity<PropertyResult>(status);
+            return new ResponseEntity<ProductResult>(status);
         }
 
         status = null;
-        Property target = properties.findOne(key);
+        Product target = products.findOne(fromRequest.getName());
         if (target != null) {
-            target.setValue(value);
             target.setDescription(description);
             status = HttpStatus.OK;
 
         } else {
-            target = new Property(key, value);
+            target = new Product(fromRequest.getName(), fromRequest.getDescription());
             target.setDescription(description);
-            properties.save(target);
+            products.save(target);
             status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<PropertyResult>(new PropertyResult(target, getBaseUrl(request)), status);
+        return new ResponseEntity<ProductResult>(new ProductResult(target, getBaseUrl(request)), status);
     }
 
-    private HttpStatus checkForErrors(PropertyKey key, String value) {
-        if (DomainValidator.containsErrors(key) || StringUtils.isEmpty(value)) {
+    private HttpStatus checkForErrors(Product arg) {
+        if (DomainValidator.containsErrors(arg)) {
             return HttpStatus.BAD_REQUEST;
-        }
-        if (!products.exists(key.getProduct())) {
-            return HttpStatus.PRECONDITION_FAILED;
         }
         return HttpStatus.OK;
     }
 
     private String getBaseUrl(HttpServletRequest req) {
-        return StringUtils.substringBefore(req.getRequestURL().toString(), ReConfServerApplication.CRUD_ROOT);
+        String url = req.getRequestURL().toString();
+        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfServerApplication.CRUD_ROOT), "");
     }
 }

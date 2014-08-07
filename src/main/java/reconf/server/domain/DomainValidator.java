@@ -13,24 +13,18 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server;
+package reconf.server.domain;
 
-import org.springframework.boot.autoconfigure.*;
-import org.springframework.boot.builder.*;
-import org.springframework.context.annotation.*;
+import javax.validation.*;
 
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-public class ReConfServerApplication {
+public class DomainValidator {
 
-    public static final String CRUD_ROOT = "/crud";
-    public static final String SECURITY_ROOT = "/security";
+    private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    public static void main(String[] args) {
-        new SpringApplicationBuilder()
-        .showBanner(false)
-        .sources(ReConfServerApplication.class)
-        .run(args);
+    public static boolean containsErrors(Object arg) {
+        if (arg == null) {
+            return true;
+        }
+        return validator.validate(arg).size() > 0;
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 1996-2014 UOL Inc
+ *    Copyright 2013-2014 ReConf Team
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -13,19 +13,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services.property;
+package reconf.server.repository;
 
-import javax.validation.*;
+import org.springframework.data.repository.*;
 import reconf.server.domain.*;
 
-public class PropertyValidator {
+public interface ProductRepository extends CrudRepository<Product, String> {
 
-    private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    public static boolean containsErrors(PropertyKey key) {
-        if (key == null) {
-            return true;
-        }
-        return validator.validate(key).size() > 0;
-    }
 }

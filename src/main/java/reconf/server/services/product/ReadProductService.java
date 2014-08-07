@@ -13,45 +13,48 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services.property;
+package reconf.server.services.product;
 
+import javax.servlet.http.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
 import reconf.server.domain.*;
+import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 
 @RestController
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
     produces="application/json",
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
-public class DeletePropertyService {
+public class ReadProductService {
 
-    @Autowired private PropertyRepository properties;
+    @Autowired private ProductRepository products;
 
-    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/product/{prod}", method=RequestMethod.GET)
     @Transactional
-    public ResponseEntity<Object> doIt(
+    public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
-            @PathVariable("comp") String component,
-            @PathVariable("prop") String property,
-            @RequestParam(required=false, value="instance") String instance) {
+            HttpServletRequest request) {
 
-        PropertyKey key = new PropertyKey(product, component, property, instance);
-        if (DomainValidator.containsErrors(key)) {
-            return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+        Product fromRequest = new Product(product, "");
+        if (DomainValidator.containsErrors(fromRequest)) {
+            return new ResponseEntity<ProductResult>(HttpStatus.BAD_REQUEST);
         }
 
-        if (!properties.exists(key)) {
-            return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+        Product target = products.findOne(fromRequest.getName());
+        if (target == null) {
+            return new ResponseEntity<ProductResult>(HttpStatus.NOT_FOUND);
         }
-        properties.delete(key);
-        return new ResponseEntity<Object>(HttpStatus.OK);
+
+        return new ResponseEntity<ProductResult>(new ProductResult(target, getBaseUrl(request)), HttpStatus.OK);
     }
 
-    public void setProperties(PropertyRepository properties) {
-        this.properties = properties;
+    private String getBaseUrl(HttpServletRequest req) {
+        String url = req.getRequestURL().toString();
+        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfServerApplication.CRUD_ROOT), "");
     }
 }
