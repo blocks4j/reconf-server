@@ -32,8 +32,8 @@ import reconf.server.repository.*;
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
 public class UpsertPropertyService {
 
-    @Autowired private PropertyRepository properties;
-    @Autowired private ProductRepository products;
+    @Autowired PropertyRepository properties;
+    @Autowired ProductRepository products;
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.PUT)
     @Transactional

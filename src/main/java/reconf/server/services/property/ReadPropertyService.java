@@ -28,7 +28,7 @@ import reconf.server.repository.*;
     consumes={"text/plain", "application/vnd.reconf-v1+text", "*/*"})
 public class ReadPropertyService {
 
-    @Autowired private PropertyRepository properties;
+    @Autowired PropertyRepository properties;
 
     @RequestMapping(value="/{prod}/{comp}/{prop}", method=RequestMethod.GET)
     public ResponseEntity<String> doIt(

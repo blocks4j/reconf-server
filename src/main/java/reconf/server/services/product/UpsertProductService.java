@@ -32,7 +32,7 @@ import reconf.server.repository.*;
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
 public class UpsertProductService {
 
-    @Autowired private ProductRepository products;
+    @Autowired ProductRepository products;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional

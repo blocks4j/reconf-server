@@ -29,7 +29,7 @@ import reconf.server.repository.*;
     consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
 public class DeletePropertyService {
 
-    @Autowired private PropertyRepository properties;
+    @Autowired PropertyRepository properties;
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.DELETE)
     @Transactional
@@ -49,9 +49,5 @@ public class DeletePropertyService {
         }
         properties.delete(key);
         return new ResponseEntity<Object>(HttpStatus.OK);
-    }
-
-    public void setProperties(PropertyRepository properties) {
-        this.properties = properties;
     }
 }

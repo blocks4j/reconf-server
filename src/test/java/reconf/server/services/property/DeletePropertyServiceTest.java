@@ -30,7 +30,7 @@ public class DeletePropertyServiceTest {
     public void before() {
         target = new DeletePropertyService();
         properties = Mockito.mock(PropertyRepository.class);
-        target.setProperties(properties);
+        target.properties = properties;
     }
 
     @Test

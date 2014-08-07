@@ -19,5 +19,4 @@ import org.springframework.data.repository.*;
 import reconf.server.domain.*;
 
 public interface PropertyRepository extends CrudRepository<Property, PropertyKey> {
-
 }
