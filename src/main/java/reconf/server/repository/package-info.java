@@ -13,25 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server;
-
-import org.springframework.boot.autoconfigure.*;
-import org.springframework.boot.builder.*;
-import org.springframework.context.annotation.*;
-
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-// mvn spring-boot:run
-public class ReConfServerApplication {
-
-    public static final String CRUD_ROOT = "/crud";
-    public static final String SECURITY_ROOT = "/security";
-
-    public static void main(String[] args) {
-        new SpringApplicationBuilder()
-        .showBanner(false)
-        .sources(ReConfServerApplication.class)
-        .run(args);
-    }
-}
+/**
+ * http://docs.spring.io/spring-data/jpa/docs/1.6.2.RELEASE/reference/html/repositories.html
+ * http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-embedded-database-support
+ */
+package reconf.server.repository;
