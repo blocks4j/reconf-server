@@ -19,14 +19,15 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
 
 @RestController
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
-    produces="application/json",
-    consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
+    produces=ReConfMediaType.APPLICATION_JSON,
+    consumes={ReConfMediaType.PROTOCOL_V1, ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
 public class DeletePropertyService {
 
     @Autowired PropertyRepository properties;

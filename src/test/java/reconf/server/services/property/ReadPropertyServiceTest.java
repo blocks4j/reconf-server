@@ -30,12 +30,12 @@ import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
 
-public class DeletePropertyServiceTest {
+public class ReadPropertyServiceTest {
 
     MockMvc mockMvc;
 
     @InjectMocks
-    DeletePropertyService service;
+    ReadPropertyService service;
 
     @Mock
     PropertyRepository repository;
@@ -49,31 +49,30 @@ public class DeletePropertyServiceTest {
 
     @Test
     public void found() throws Exception {
-        PropertyKey key = standardPropertyKey();
+        Property property = standardProperty();
 
-        when(repository.exists(key)).thenReturn(true);
+        when(repository.findOne(property.getKey())).thenReturn(property);
 
-        this.mockMvc.perform(delete("/crud/product/{prod}/component/{comp}/property/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-            .accept(ReConfMediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
+            .accept(ReConfMediaType.PROTOCOL_V1))
             .andDo(print())
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().string(property.getValue()));
 
-        verify(repository).exists(key);
-        verify(repository).delete(key);
+        verify(repository).findOne(property.getKey());
     }
 
     @Test
     public void not_found() throws Exception {
-        PropertyKey key = standardPropertyKey();
+        Property property = standardProperty();
 
-        when(repository.exists(key)).thenReturn(false);
+        when(repository.findOne(property.getKey())).thenReturn(null);
 
-        this.mockMvc.perform(delete("/crud/product/{prod}/component/{comp}/property/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-                .accept(ReConfMediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
+            .accept(ReConfMediaType.PROTOCOL_V1))
+            .andDo(print())
+            .andExpect(status().isNotFound());
 
-        verify(repository).exists(key);
-        verify(repository, never()).delete(key);
+        verify(repository).findOne(property.getKey());
     }
 }
