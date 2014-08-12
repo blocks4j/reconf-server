@@ -16,10 +16,13 @@
 package reconf.server.services.component;
 
 import javax.servlet.http.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
+import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
@@ -27,7 +30,7 @@ import reconf.server.services.*;
 @CrudService
 public class ReadComponentService {
 
-    @Autowired ProductRepository products;
+    @Autowired ComponentRepository components;
 
     @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.GET)
     @Transactional
@@ -37,6 +40,21 @@ public class ReadComponentService {
             HttpServletRequest request) {
 
 
-        return new ResponseEntity<ComponentResult>(HttpStatus.METHOD_NOT_ALLOWED);
+        ComponentKey key = new ComponentKey(productId, componentId);
+        if (DomainValidator.containsErrors(key)) {
+            return new ResponseEntity<ComponentResult>(HttpStatus.BAD_REQUEST);
+        }
+
+        Component target = components.findOne(key);
+        if (target == null) {
+            return new ResponseEntity<ComponentResult>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<ComponentResult>(new ComponentResult(target, getBaseUrl(request)), HttpStatus.OK);
+    }
+
+    private String getBaseUrl(HttpServletRequest req) {
+        String url = req.getRequestURL().toString();
+        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfServerApplication.CRUD_ROOT), "");
     }
 }
