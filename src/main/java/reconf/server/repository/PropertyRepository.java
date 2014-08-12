@@ -15,8 +15,12 @@
  */
 package reconf.server.repository;
 
+import java.util.*;
 import org.springframework.data.repository.*;
 import reconf.server.domain.*;
 
 public interface PropertyRepository extends CrudRepository<Property, PropertyKey> {
+
+    List<Property> deleteByKeyProduct(String product);
+    List<Property> deleteByKeyProductAndKeyComponent(String product, String component);
 }

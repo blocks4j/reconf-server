@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rest-client version="3.1"><request><http-version>1.1</http-version><http-follow-redirects/><URL>http://localhost:8080/crud/product/test-product/component/test-component/property/test-property?instance=development&amp;description=simple%20description</URL><method>PUT</method><body><string content-type="text/plain" charset="UTF-8">'test value'</string></body></request></rest-client>

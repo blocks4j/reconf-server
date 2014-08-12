@@ -28,6 +28,8 @@ import reconf.server.services.*;
 public class DeleteProductService {
 
     @Autowired ProductRepository products;
+    @Autowired ComponentRepository components;
+    @Autowired PropertyRepository properties;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.DELETE)
     @Transactional
@@ -42,6 +44,8 @@ public class DeleteProductService {
             return new ResponseEntity<ProductResult>(HttpStatus.NOT_FOUND);
         }
         products.delete(fromRequest.getName());
+        components.deleteByKeyProduct(fromRequest.getName());
+        properties.deleteByKeyProduct(fromRequest.getName());
         return new ResponseEntity<ProductResult>(HttpStatus.OK);
     }
 }
