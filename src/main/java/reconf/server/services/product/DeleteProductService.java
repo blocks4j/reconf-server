@@ -24,7 +24,8 @@ import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class DeleteProductService implements CrudService {
+@CrudService
+public class DeleteProductService {
 
     @Autowired ProductRepository products;
 

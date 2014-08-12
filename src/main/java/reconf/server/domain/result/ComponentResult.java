@@ -36,7 +36,7 @@ public class ComponentResult {
     }
 
     private static String getUriOf(Component arg) {
-        return "/product/" + arg.getKey().getProduct() + "/component" + arg.getKey().getName();
+        return "/product/" + arg.getKey().getProduct() + "/component/" + arg.getKey().getName();
     }
 
     public String getProduct() {

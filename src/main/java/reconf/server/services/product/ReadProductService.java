@@ -27,7 +27,8 @@ import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class ReadProductService implements CrudService {
+@CrudService
+public class ReadProductService {
 
     @Autowired ProductRepository products;
 

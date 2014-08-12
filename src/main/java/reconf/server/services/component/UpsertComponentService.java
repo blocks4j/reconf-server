@@ -27,7 +27,8 @@ import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class UpsertComponentService implements CrudService {
+@CrudService
+public class UpsertComponentService {
 
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;

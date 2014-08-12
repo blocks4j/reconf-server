@@ -15,6 +15,7 @@
  */
 package reconf.server.services;
 
+import java.lang.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
 
@@ -22,5 +23,7 @@ import reconf.server.*;
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
     produces=ReConfMediaType.APPLICATION_JSON,
     consumes={ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
-public interface CrudService {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface CrudService {
 }

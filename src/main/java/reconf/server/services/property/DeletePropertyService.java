@@ -23,7 +23,8 @@ import reconf.server.domain.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class DeletePropertyService implements CrudService {
+@CrudService
+public class DeletePropertyService {
 
     @Autowired PropertyRepository properties;
 
