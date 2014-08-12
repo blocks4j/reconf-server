@@ -18,14 +18,16 @@ package reconf.server.services.property;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
 
 
 @RestController
 @RequestMapping(value="/",
-    produces="application/vnd.reconf-v1+text",
-    consumes={"text/plain", "application/vnd.reconf-v1+text", "*/*"})
+     produces = ReConfMediaType.PROTOCOL_V1,
+    consumes={ReConfMediaType.PROTOCOL_V1, ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
 public class ReadPropertyService {
 
     @Autowired PropertyRepository properties;
