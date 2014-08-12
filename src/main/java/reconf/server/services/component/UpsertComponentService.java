@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.services.product;
+package reconf.server.services.component;
 
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
@@ -27,43 +27,40 @@ import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class UpsertProductService implements CrudService {
+public class UpsertComponentService implements CrudService {
 
     @Autowired ProductRepository products;
+    @Autowired ComponentRepository components;
 
-    @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
+    @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.PUT)
     @Transactional
-    public ResponseEntity<ProductResult> doIt(
-            @PathVariable("prod") String product,
+    public ResponseEntity<ComponentResult> doIt(
+            @PathVariable("prod") String productId,
+            @PathVariable("comp") String componentId,
             @RequestParam(required=false, value="description") String description,
             HttpServletRequest request) {
 
-        Product fromRequest = new Product(product, description);
-        HttpStatus status = checkForErrors(fromRequest);
-        if (status.is4xxClientError()) {
-            return new ResponseEntity<ProductResult>(status);
+        ComponentKey key = new ComponentKey(productId, componentId);
+        if (DomainValidator.containsErrors(key)) {
+            return new ResponseEntity<ComponentResult>(HttpStatus.BAD_REQUEST);
         }
 
-        status = null;
-        Product target = products.findOne(fromRequest.getName());
-        if (target != null) {
-            target.setDescription(description);
-            status = HttpStatus.OK;
+        Product product = products.findOne(key.getProduct());
+        if (product == null) {
+            return new ResponseEntity<ComponentResult>(HttpStatus.NOT_FOUND);
+        }
+        HttpStatus status = null;
+        Component component = components.findOne(key);
+        if (component == null) {
+            component = new Component(key, description);
+            components.save(component);
+            status = HttpStatus.CREATED;
 
         } else {
-            target = new Product(fromRequest.getName(), fromRequest.getDescription());
-            target.setDescription(description);
-            products.save(target);
-            status = HttpStatus.CREATED;
+            component.setDescription(description);
+            status = HttpStatus.OK;
         }
-        return new ResponseEntity<ProductResult>(new ProductResult(target, getBaseUrl(request)), status);
-    }
-
-    private HttpStatus checkForErrors(Product arg) {
-        if (DomainValidator.containsErrors(arg)) {
-            return HttpStatus.BAD_REQUEST;
-        }
-        return HttpStatus.OK;
+        return new ResponseEntity<ComponentResult>(new ComponentResult(component, getBaseUrl(request)), status);
     }
 
     private String getBaseUrl(HttpServletRequest req) {

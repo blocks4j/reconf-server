@@ -107,7 +107,7 @@ public class PropertyKey implements Serializable {
 
     @Override
     public int hashCode() {
-        if (product == null || component == null | name == null) {
+        if (product == null || component == null || name == null) {
             return super.hashCode();
         }
         return new HashCodeBuilder()

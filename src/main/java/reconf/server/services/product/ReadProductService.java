@@ -25,12 +25,9 @@ import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
+import reconf.server.services.*;
 
-@RestController
-@RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
-    produces="application/json",
-    consumes={"application/vnd.reconf-v1+text", "text/plain", "*/*"})
-public class ReadProductService {
+public class ReadProductService implements CrudService {
 
     @Autowired ProductRepository products;
 

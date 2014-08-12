@@ -15,49 +15,35 @@
  */
 package reconf.server.domain;
 
-import java.io.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name="reconf_property_v1")
-public class Property implements Serializable {
+@Table(name="reconf_component_v1")
+public class Component {
 
-    private static final long serialVersionUID = 1L;
-    private PropertyKey key;
-    private String value;
+    private ComponentKey key;
     private String description;
 
-    public Property() { }
+    public Component() { }
 
-    public Property(PropertyKey key, String value) {
+    public Component(ComponentKey key) {
         this.key = key;
-        this.value = value;
     }
 
-    public Property(PropertyKey key, String value, String description) {
+    public Component(ComponentKey key, String description) {
         this.key = key;
-        this.value = value;
         this.description = description;
     }
 
     @EmbeddedId
-    public PropertyKey getKey() {
+    public ComponentKey getKey() {
         return key;
     }
-    public void setKey(PropertyKey key) {
+    public void setKey(ComponentKey key) {
         this.key = key;
     }
 
-    @Column(nullable=false, name="property_value", length=Integer.MAX_VALUE)
-    @Lob
-    public String getValue() {
-        return value;
-    }
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Column(nullable=true, length=4096, name="property_desc")
+    @Column(nullable=true, length=4096, name="component_desc")
     public String getDescription() {
         return description;
     }
@@ -75,10 +61,10 @@ public class Property implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null || !(obj instanceof Property)) {
+        if(obj == null || !(obj instanceof Component)) {
             return false;
         }
-        Property rhs = (Property) obj;
+        Component rhs = (Component) obj;
         if (rhs.key == null) {
             return false;
         }

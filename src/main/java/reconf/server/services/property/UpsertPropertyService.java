@@ -16,23 +16,18 @@
 package reconf.server.services.property;
 
 import javax.servlet.http.*;
-
 import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
+import reconf.server.services.*;
 
-@RestController
-@RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
-    produces=ReConfMediaType.APPLICATION_JSON,
-    consumes={ReConfMediaType.PROTOCOL_V1, ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
-public class UpsertPropertyService {
+public class UpsertPropertyService implements CrudService {
 
     @Autowired PropertyRepository properties;
     @Autowired ProductRepository products;
