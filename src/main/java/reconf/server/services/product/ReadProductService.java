@@ -15,6 +15,7 @@
  */
 package reconf.server.services.product;
 
+import java.util.*;
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
@@ -38,14 +39,15 @@ public class ReadProductService {
             @PathVariable("prod") String product,
             HttpServletRequest request) {
 
-        Product fromRequest = new Product(product, "");
-        if (DomainValidator.containsErrors(fromRequest)) {
-            return new ResponseEntity<ProductResult>(HttpStatus.BAD_REQUEST);
+        Product fromRequest = new Product(product, null);
+        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
         Product target = products.findOne(fromRequest.getName());
         if (target == null) {
-            return new ResponseEntity<ProductResult>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<ProductResult>(new ProductResult(target, getBaseUrl(request)), HttpStatus.OK);

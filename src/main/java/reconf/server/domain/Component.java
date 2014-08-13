@@ -15,11 +15,15 @@
  */
 package reconf.server.domain;
 
+import java.util.*;
 import javax.persistence.*;
 
 @Entity
 @Table(name="reconf_component_v1")
 public class Component {
+
+    public static final String NAME_MESSAGE = "component must match [a-zA-Z_0-9]{3,256}";
+    public static final List<String> NOT_FOUND = Collections.singletonList("component not found");
 
     private ComponentKey key;
     private String description;

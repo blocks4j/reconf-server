@@ -15,6 +15,7 @@
  */
 package reconf.server.domain;
 
+import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.*;
@@ -25,6 +26,8 @@ import org.hibernate.validator.constraints.*;
 @Table(name="reconf_product_v1")
 public class Product {
 
+    public static final String NAME_MESSAGE = "product must match [a-zA-Z_0-9]{3,256}";
+    public static final List<String> NOT_FOUND = Collections.singletonList("product not found");
     private String name;
     private String description;
 
@@ -36,7 +39,10 @@ public class Product {
     }
 
     @Id @Column(length=256, name="product_name")
-    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
+    @NotBlank(message=Product.NAME_MESSAGE)
+    @NotNull(message=Product.NAME_MESSAGE)
+    @Size(min=3, max=256, message=Product.NAME_MESSAGE)
+    @Pattern(regexp="\\w*", message=Product.NAME_MESSAGE)
     public String getName() {
         return name;
     }

@@ -15,6 +15,7 @@
  */
 package reconf.server.services.component;
 
+import java.util.*;
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
@@ -42,13 +43,15 @@ public class UpsertComponentService {
             HttpServletRequest request) {
 
         ComponentKey key = new ComponentKey(productId, componentId);
-        if (DomainValidator.containsErrors(key)) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.BAD_REQUEST);
+        Component fromRequest = new Component(key, description);
+        List<String> errors = DomainValidator.checkForErrors(key);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
         Product product = products.findOne(key.getProduct());
         if (product == null) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         HttpStatus status = null;
         Component component = components.findOne(key);

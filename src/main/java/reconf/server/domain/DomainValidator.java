@@ -15,16 +15,26 @@
  */
 package reconf.server.domain;
 
+import java.util.*;
 import javax.validation.*;
 
 public class DomainValidator {
 
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    public static boolean containsErrors(Object arg) {
+    public static List<String> checkForErrors(Object arg) {
         if (arg == null) {
-            return true;
+            return Collections.EMPTY_LIST;
         }
-        return validator.validate(arg).size() > 0;
+        Set<ConstraintViolation<Object>> violations = validator.validate(arg);
+        Set<String> errors = new TreeSet<>();
+        for (ConstraintViolation<Object> violation : violations) {
+            errors.add(violation.getMessage());
+        }
+        return new ArrayList<String>(errors);
+    }
+
+    public static boolean containsErrors(Object arg) {
+        return checkForErrors(arg).size() > 0;
     }
 }

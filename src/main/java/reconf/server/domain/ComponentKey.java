@@ -39,7 +39,10 @@ public class ComponentKey implements Serializable {
     }
 
     @Column(length=256, name="component_name")
-    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
+    @NotBlank(message=Component.NAME_MESSAGE)
+    @NotNull(message=Component.NAME_MESSAGE)
+    @Size(min=3, max=256, message=Component.NAME_MESSAGE)
+    @Pattern(regexp="\\w*", message=Component.NAME_MESSAGE)
     public String getName() {
         return name;
     }
@@ -48,7 +51,10 @@ public class ComponentKey implements Serializable {
     }
 
     @Column(length=256, name="product_name")
-    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
+    @NotBlank(message=Product.NAME_MESSAGE)
+    @NotNull(message=Product.NAME_MESSAGE)
+    @Size(min=3, max=256, message=Product.NAME_MESSAGE)
+    @Pattern(regexp="\\w*", message=Product.NAME_MESSAGE)
     public String getProduct() {
         return product;
     }

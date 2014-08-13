@@ -15,6 +15,7 @@
  */
 package reconf.server.services.property;
 
+import java.util.*;
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
@@ -30,8 +31,9 @@ import reconf.server.services.*;
 @CrudService
 public class UpsertPropertyService {
 
-    @Autowired PropertyRepository properties;
     @Autowired ProductRepository products;
+    @Autowired ComponentRepository components;
+    @Autowired PropertyRepository properties;
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.PUT)
     @Transactional
@@ -44,12 +46,22 @@ public class UpsertPropertyService {
             HttpServletRequest request) {
 
         PropertyKey key = new PropertyKey(product, component, property);
-        HttpStatus status = checkForErrors(key, value);
-        if (status.is4xxClientError()) {
-            return new ResponseEntity<PropertyResult>(status);
+        Property fromRequest = new Property(key, value, description);
+        List<String> errors = DomainValidator.checkForErrors(key);
+        if (StringUtils.isNotEmpty(value)) {
+            errors.add(Property.VALUE_MESSAGE);
+        }
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+        }
+        if (!products.exists(key.getProduct())) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        status = null;
+        HttpStatus status = null;
         Property target = properties.findOne(key);
         if (target != null) {
             target.setValue(value);
@@ -63,16 +75,6 @@ public class UpsertPropertyService {
             status = HttpStatus.CREATED;
         }
         return new ResponseEntity<PropertyResult>(new PropertyResult(target, getBaseUrl(request)), status);
-    }
-
-    private HttpStatus checkForErrors(PropertyKey key, String value) {
-        if (DomainValidator.containsErrors(key) || StringUtils.isEmpty(value)) {
-            return HttpStatus.BAD_REQUEST;
-        }
-        if (!products.exists(key.getProduct())) {
-            return HttpStatus.PRECONDITION_FAILED;
-        }
-        return HttpStatus.OK;
     }
 
     private String getBaseUrl(HttpServletRequest req) {

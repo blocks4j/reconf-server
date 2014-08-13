@@ -15,6 +15,7 @@
  */
 package reconf.server.services.product;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
@@ -35,14 +36,16 @@ public class DeleteProductService {
     @Transactional
     public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product) {
 
-        Product fromRequest = new Product(product, "");
-        if (DomainValidator.containsErrors(fromRequest)) {
-            return new ResponseEntity<ProductResult>(HttpStatus.BAD_REQUEST);
+        Product fromRequest = new Product(product, null);
+        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
         if (!products.exists(fromRequest.getName())) {
-            return new ResponseEntity<ProductResult>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
+
         products.delete(fromRequest.getName());
         components.deleteByKeyProduct(fromRequest.getName());
         properties.deleteByKeyProduct(fromRequest.getName());

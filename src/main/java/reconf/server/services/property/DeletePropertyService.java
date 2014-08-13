@@ -15,11 +15,13 @@
  */
 package reconf.server.services.property;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
+import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
@@ -30,20 +32,23 @@ public class DeletePropertyService {
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.DELETE)
     @Transactional
-    public ResponseEntity<Object> doIt(
+    public ResponseEntity<PropertyResult> doIt(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property) {
 
         PropertyKey key = new PropertyKey(product, component, property);
-        if (DomainValidator.containsErrors(key)) {
-            return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+        Property fromRequest = new Property(key, null);
+
+        List<String> errors = DomainValidator.checkForErrors(key);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
         if (!properties.exists(key)) {
-            return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         properties.delete(key);
-        return new ResponseEntity<Object>(HttpStatus.OK);
+        return new ResponseEntity<PropertyResult>(HttpStatus.OK);
     }
 }

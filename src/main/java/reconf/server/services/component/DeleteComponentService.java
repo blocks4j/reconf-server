@@ -15,6 +15,7 @@
  */
 package reconf.server.services.component;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
@@ -38,17 +39,22 @@ public class DeleteComponentService {
             @PathVariable("comp") String componentId) {
 
         ComponentKey key = new ComponentKey(productId, componentId);
-        if (DomainValidator.containsErrors(key)) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.BAD_REQUEST);
+        Component fromRequest = new Component(key);
+
+        List<String> errors = DomainValidator.checkForErrors(key);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
         if (!products.exists(key.getProduct())) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
+
         Component component = components.findOne(key);
         if (component == null) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
+
         components.delete(component);
         properties.deleteByKeyProductAndKeyComponent(key.getProduct(), key.getName());
         return new ResponseEntity<ComponentResult>(HttpStatus.OK);

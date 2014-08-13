@@ -15,21 +15,25 @@
  */
 package reconf.server.services.property;
 
+import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
 import reconf.server.domain.*;
+import reconf.server.domain.result.*;
 import reconf.server.repository.*;
+import com.fasterxml.jackson.databind.*;
 
 
 @RestController
 @RequestMapping(value="/",
-     produces = ReConfMediaType.PROTOCOL_V1,
+    produces = ReConfMediaType.PROTOCOL_V1,
     consumes={ReConfMediaType.PROTOCOL_V1, ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
 public class ReadPropertyService {
 
     @Autowired PropertyRepository properties;
+    private static ObjectMapper mapper = new ObjectMapper();
 
     @RequestMapping(value="/{prod}/{comp}/{prop}", method=RequestMethod.GET)
     public ResponseEntity<String> doIt(
@@ -38,8 +42,12 @@ public class ReadPropertyService {
             @PathVariable("prop") String property) {
 
         PropertyKey key = new PropertyKey(product, component, property);
-        if (DomainValidator.containsErrors(key)) {
-            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        List<String> errors = DomainValidator.checkForErrors(key);
+        Property fromRequest = new Property(key);
+
+        if (!errors.isEmpty()) {
+            HttpHeaders headers = getErrorHeader(errors, fromRequest);
+            return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
 
         Property fromDB = properties.findOne(key);
@@ -47,5 +55,14 @@ public class ReadPropertyService {
             return new ResponseEntity<String>(fromDB.getValue(), HttpStatus.OK);
         }
         return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+    }
+
+    private HttpHeaders getErrorHeader(List<String> errors, Property fromRequest) {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.add("X-ReConf-Result", mapper.writeValueAsString(new PropertyResult(fromRequest, errors)));
+        } catch (Exception ignored) {
+        }
+        return headers;
     }
 }

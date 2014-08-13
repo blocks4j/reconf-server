@@ -24,13 +24,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class ProductResult {
 
-    private String name;
+    private String product;
     private String description;
     private Link link;
     private List<String> errors;
 
     private ProductResult(Product arg) {
-        this.name = arg.getName();
+        this.product = arg.getName();
         this.description = arg.getDescription();
     }
 
@@ -48,8 +48,8 @@ public class ProductResult {
         return "/product/" + arg.getName();
     }
 
-    public String getName() {
-        return name;
+    public String getProduct() {
+        return product;
     }
 
     public String getDescription() {

@@ -15,6 +15,7 @@
  */
 package reconf.server.services.product;
 
+import java.util.*;
 import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
@@ -40,12 +41,12 @@ public class UpsertProductService {
             HttpServletRequest request) {
 
         Product fromRequest = new Product(product, description);
-        HttpStatus status = checkForErrors(fromRequest);
-        if (status.is4xxClientError()) {
-            return new ResponseEntity<ProductResult>(status);
+        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
 
-        status = null;
+        HttpStatus status = null;
         Product target = products.findOne(fromRequest.getName());
         if (target != null) {
             target.setDescription(description);
@@ -58,13 +59,6 @@ public class UpsertProductService {
             status = HttpStatus.CREATED;
         }
         return new ResponseEntity<ProductResult>(new ProductResult(target, getBaseUrl(request)), status);
-    }
-
-    private HttpStatus checkForErrors(Product arg) {
-        if (DomainValidator.containsErrors(arg)) {
-            return HttpStatus.BAD_REQUEST;
-        }
-        return HttpStatus.OK;
     }
 
     private String getBaseUrl(HttpServletRequest req) {

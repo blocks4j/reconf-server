@@ -16,11 +16,16 @@
 package reconf.server.domain;
 
 import java.io.*;
+import java.util.*;
 import javax.persistence.*;
 
 @Entity
 @Table(name="reconf_property_v1")
 public class Property implements Serializable {
+
+    public static final String NAME_MESSAGE = "property name must match [a-zA-Z_0-9]{3,256}";
+    public static final String VALUE_MESSAGE = "property value must not be empty";
+    public static final List<String> NOT_FOUND = Collections.singletonList("property not found");
 
     private static final long serialVersionUID = 1L;
     private PropertyKey key;
@@ -28,6 +33,10 @@ public class Property implements Serializable {
     private String description;
 
     public Property() { }
+
+    public Property(PropertyKey key) {
+        this.key = key;
+    }
 
     public Property(PropertyKey key, String value) {
         this.key = key;
