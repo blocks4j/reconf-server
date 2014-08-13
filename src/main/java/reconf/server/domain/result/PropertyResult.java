@@ -16,7 +16,7 @@
 package reconf.server.domain.result;
 
 import java.net.*;
-import org.apache.commons.lang3.*;
+import java.util.*;
 import reconf.server.domain.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -29,21 +29,26 @@ public class PropertyResult {
     private String component;
     private String instance;
     private Link link;
+    private List<String> errors;
 
-    public PropertyResult(Property arg, String baseURL) {
+    private PropertyResult(Property arg) {
         this.product = arg.getKey().getProduct();
         this.component = arg.getKey().getComponent();
         this.property = arg.getKey().getName();
-        this.instance = arg.getKey().getInstance();
+    }
+
+    public PropertyResult(Property arg, String baseURL) {
+        this(arg);
         this.link = new Link(URI.create(baseURL + getUriOf(arg)), "alternate");
     }
 
+    public PropertyResult(Property arg, List<String> errors) {
+        this(arg);
+        this.errors = errors;
+    }
+
     private static String getUriOf(Property property) {
-        String result = "/" + property.getKey().getProduct() + "/" + property.getKey().getComponent() + "/" + property.getKey().getName();
-        if (StringUtils.isNotBlank(property.getKey().getInstance())) {
-            result += "?instance=" + property.getKey().getInstance();
-        }
-        return result;
+        return "/" + property.getKey().getProduct() + "/" + property.getKey().getComponent() + "/" + property.getKey().getName();
     }
 
     public String getProperty() {
@@ -64,5 +69,9 @@ public class PropertyResult {
 
     public Link getLink() {
         return link;
+    }
+
+    public List<String> getErrors() {
+        return errors;
     }
 }

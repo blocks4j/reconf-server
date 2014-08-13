@@ -29,39 +29,20 @@ public class PropertyKey implements Serializable {
     private String name;
     private String product;
     private String component;
-    private String cluster;
-    private String instance;
+    private Scope scope = Scope.global;
+    private String target = StringUtils.EMPTY;
 
     public PropertyKey() {
-    }
-
-    public PropertyKey(String product, String component, String name, String instance, String cluster) {
-        setProduct(product);
-        setComponent(component);
-        setName(name);
-        setInstance(instance);
-        setCluster(cluster);
-    }
-
-    public PropertyKey(String product, String component, String name, String instance) {
-        setProduct(product);
-        setComponent(component);
-        setName(name);
-        setInstance(instance);
-        setCluster(StringUtils.EMPTY);
     }
 
     public PropertyKey(String product, String component, String name) {
         setProduct(product);
         setComponent(component);
         setName(name);
-        setInstance(StringUtils.EMPTY);
-        setCluster(StringUtils.EMPTY);
     }
 
-
     @Column(length=256, name="property_name")
-    @NotBlank @NotNull @Size(min=1, max=256)
+    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
     public String getName() {
         return name;
     }
@@ -70,7 +51,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="product_name")
-    @NotBlank @NotNull @Size(min=1, max=256)
+    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
     public String getProduct() {
         return product;
     }
@@ -79,7 +60,7 @@ public class PropertyKey implements Serializable {
     }
 
     @Column(length=256, name="component_name")
-    @NotBlank @NotNull @Size(min=1, max=256)
+    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
     public String getComponent() {
         return component;
     }
@@ -87,22 +68,21 @@ public class PropertyKey implements Serializable {
         this.component = StringUtils.lowerCase(StringUtils.defaultString(component));
     }
 
-    @Column(length=256, name="cluster_name")
-    @Size(min=0, max=256)
-    public String getCluster() {
-        return cluster;
+    @Column(length=128, name="scope") @Enumerated(EnumType.STRING)
+    @NotNull
+    public Scope getScope() {
+        return scope;
     }
-    public void setCluster(String cluster) {
-        this.cluster = StringUtils.lowerCase(StringUtils.defaultString(cluster));
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 
-    @Column(length=256, name="instance_name")
-    @Size(min=0, max=256)
-    public String getInstance() {
-        return instance;
+    @Column(length=256, name="target_name")
+    public String getTarget() {
+        return target;
     }
-    public void setInstance(String instance) {
-        this.instance = StringUtils.lowerCase(StringUtils.defaultString(instance));
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     @Override
@@ -114,8 +94,6 @@ public class PropertyKey implements Serializable {
             .append(product)
             .append(component)
             .append(name)
-            .append(cluster)
-            .append(instance)
             .hashCode();
     }
 
@@ -129,8 +107,6 @@ public class PropertyKey implements Serializable {
             .append(product, rhs.product)
             .append(component, rhs.component)
             .append(name, rhs.name)
-            .append(cluster, rhs.cluster)
-            .append(instance, rhs.instance)
             .isEquals();
     }
 }

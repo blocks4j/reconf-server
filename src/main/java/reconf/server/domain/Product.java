@@ -36,7 +36,7 @@ public class Product {
     }
 
     @Id @Column(length=256, name="product_name")
-    @NotBlank @NotNull @Size(min=1, max=256)
+    @NotBlank @NotNull @Size(min=1, max=256) @Pattern(regexp="\\w*")
     public String getName() {
         return name;
     }

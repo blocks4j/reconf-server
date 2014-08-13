@@ -16,7 +16,6 @@
 package reconf.server.domain.fixture;
 
 import org.apache.commons.lang3.*;
-
 import reconf.server.domain.*;
 
 public class RestDataFixture {
@@ -33,8 +32,6 @@ public class RestDataFixture {
         propertyKey.setProduct(PROPERTY_KEY_PRODUCT);
         propertyKey.setComponent(PROPERTY_KEY_COMPONENT);
         propertyKey.setName(PROPERTY_KEY_NAME);
-        propertyKey.setInstance(StringUtils.EMPTY);
-        propertyKey.setCluster(StringUtils.EMPTY);
 
         return propertyKey;
     }

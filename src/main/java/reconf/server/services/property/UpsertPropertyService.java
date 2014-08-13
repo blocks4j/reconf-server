@@ -40,11 +40,10 @@ public class UpsertPropertyService {
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
             @RequestBody(required=true) String value,
-            @RequestParam(required=false, value="instance") String instance,
             @RequestParam(required=false, value="description") String description,
             HttpServletRequest request) {
 
-        PropertyKey key = new PropertyKey(product, component, property, instance);
+        PropertyKey key = new PropertyKey(product, component, property);
         HttpStatus status = checkForErrors(key, value);
         if (status.is4xxClientError()) {
             return new ResponseEntity<PropertyResult>(status);

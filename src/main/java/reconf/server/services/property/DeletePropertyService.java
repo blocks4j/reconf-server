@@ -33,10 +33,9 @@ public class DeletePropertyService {
     public ResponseEntity<Object> doIt(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
-            @PathVariable("prop") String property,
-            @RequestParam(required=false, value="instance") String instance) {
+            @PathVariable("prop") String property) {
 
-        PropertyKey key = new PropertyKey(product, component, property, instance);
+        PropertyKey key = new PropertyKey(product, component, property);
         if (DomainValidator.containsErrors(key)) {
             return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
         }

@@ -21,11 +21,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 import static reconf.server.domain.fixture.RestDataFixture.*;
-
 import org.junit.*;
 import org.mockito.*;
 import org.springframework.test.web.servlet.*;
-
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;

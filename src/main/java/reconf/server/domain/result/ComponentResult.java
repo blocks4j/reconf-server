@@ -16,6 +16,7 @@
 package reconf.server.domain.result;
 
 import java.net.*;
+import java.util.*;
 import reconf.server.domain.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -27,12 +28,22 @@ public class ComponentResult {
     private String component;
     private String description;
     private Link link;
+    private List<String> errors;
 
-    public ComponentResult(Component arg, String baseURL) {
+    private ComponentResult(Component arg) {
         this.product = arg.getKey().getProduct();
         this.component = arg.getKey().getName();
         this.description = arg.getDescription();
+    }
+
+    public ComponentResult(Component arg, String baseURL) {
+        this(arg);
         this.link = new Link(URI.create(baseURL + getUriOf(arg)), "self");
+    }
+
+    public ComponentResult(Component arg, List<String> errors) {
+        this(arg);
+        this.errors = errors;
     }
 
     private static String getUriOf(Component arg) {
@@ -49,6 +60,10 @@ public class ComponentResult {
 
     public String getDescription() {
         return description;
+    }
+
+    public List<String> getErrors() {
+        return errors;
     }
 
     public Link getLink() {

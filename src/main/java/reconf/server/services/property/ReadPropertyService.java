@@ -18,7 +18,6 @@ package reconf.server.services.property;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
@@ -36,10 +35,9 @@ public class ReadPropertyService {
     public ResponseEntity<String> doIt(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
-            @PathVariable("prop") String property,
-            @RequestParam(value="instance", required=false) String instance) {
+            @PathVariable("prop") String property) {
 
-        PropertyKey key = new PropertyKey(product, component, property, instance);
+        PropertyKey key = new PropertyKey(product, component, property);
         if (DomainValidator.containsErrors(key)) {
             return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
         }
