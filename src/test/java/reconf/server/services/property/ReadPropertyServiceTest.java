@@ -52,7 +52,7 @@ public class ReadPropertyServiceTest {
         when(repository.findOne(property.getKey())).thenReturn(property);
 
         this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-            .accept(ReConfMediaType.PROTOCOL_V1))
+            .accept(ReConfConstants.MT_PROTOCOL_V1))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().string(property.getValue()));
@@ -67,7 +67,7 @@ public class ReadPropertyServiceTest {
         when(repository.findOne(property.getKey())).thenReturn(null);
 
         this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-            .accept(ReConfMediaType.PROTOCOL_V1))
+            .accept(ReConfConstants.MT_PROTOCOL_V1))
             .andDo(print())
             .andExpect(status().isNotFound());
 

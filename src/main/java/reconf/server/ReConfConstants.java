@@ -17,10 +17,18 @@ package reconf.server;
 
 import org.springframework.http.*;
 
-public abstract class ReConfMediaType {
+public final class ReConfConstants {
 
-    public static final String PROTOCOL_V1 = "application/vnd.reconf-v1+text";
-    public static final String APPLICATION_JSON = MediaType.APPLICATION_JSON_VALUE;
-    public static final String TEXT_PLAIN = MediaType.TEXT_PLAIN_VALUE;
-    public static final String ALL = MediaType.ALL_VALUE;
+    /**
+     * Media Type
+     */
+    public static final String MT_PROTOCOL_V1 = "application/vnd.reconf-v1+text";
+    public static final String MT_APPLICATION_JSON = MediaType.APPLICATION_JSON_VALUE;
+    public static final String MT_TEXT_PLAIN = MediaType.TEXT_PLAIN_VALUE;
+    public static final String MT_ALL = MediaType.ALL_VALUE;
+
+    /**
+     * Headers
+     */
+    public static final String RESPONSE_RESULT_HEADER = "X-ReConf-Result";
 }

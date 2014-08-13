@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.*;
 
 @RestController
 @RequestMapping(value="/",
-    produces = ReConfMediaType.PROTOCOL_V1,
-    consumes={ReConfMediaType.PROTOCOL_V1, ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
+    produces = ReConfConstants.MT_PROTOCOL_V1,
+    consumes={ReConfConstants.MT_PROTOCOL_V1, ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
 public class ReadPropertyService {
 
     @Autowired PropertyRepository properties;

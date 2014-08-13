@@ -21,8 +21,8 @@ import reconf.server.*;
 
 @RestController
 @RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
-    produces=ReConfMediaType.APPLICATION_JSON,
-    consumes={ReConfMediaType.TEXT_PLAIN, ReConfMediaType.ALL})
+    produces=ReConfConstants.MT_APPLICATION_JSON,
+    consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface CrudService {

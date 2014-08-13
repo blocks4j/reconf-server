@@ -52,7 +52,7 @@ public class DeletePropertyServiceTest {
         when(repository.exists(key)).thenReturn(true);
 
         this.mockMvc.perform(delete("/crud/product/{prod}/component/{comp}/property/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-            .accept(ReConfMediaType.APPLICATION_JSON))
+            .accept(ReConfConstants.MT_APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk());
 
@@ -67,7 +67,7 @@ public class DeletePropertyServiceTest {
         when(repository.exists(key)).thenReturn(false);
 
         this.mockMvc.perform(delete("/crud/product/{prod}/component/{comp}/property/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
-                .accept(ReConfMediaType.APPLICATION_JSON))
+                .accept(ReConfConstants.MT_APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
