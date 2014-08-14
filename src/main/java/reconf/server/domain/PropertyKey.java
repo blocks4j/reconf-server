@@ -29,8 +29,7 @@ public class PropertyKey implements Serializable {
     private String name;
     private String product;
     private String component;
-    private Scope scope = Scope.global;
-    private String target = StringUtils.EMPTY;
+    private String ruleName = "global";
 
     public PropertyKey() {
     }
@@ -77,21 +76,12 @@ public class PropertyKey implements Serializable {
         this.component = StringUtils.lowerCase(StringUtils.defaultString(component));
     }
 
-    @Column(length=128, name="scope") @Enumerated(EnumType.STRING)
-    @NotNull
-    public Scope getScope() {
-        return scope;
+    @Column(length=256, name="rule_name") @NotNull
+    public String getRuleName() {
+        return ruleName;
     }
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
-
-    @Column(length=256, name="target_name")
-    public String getTarget() {
-        return target;
-    }
-    public void setTarget(String target) {
-        this.target = target;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
     @Override
@@ -103,6 +93,7 @@ public class PropertyKey implements Serializable {
             .append(product)
             .append(component)
             .append(name)
+            .append(ruleName)
             .hashCode();
     }
 
@@ -116,6 +107,7 @@ public class PropertyKey implements Serializable {
             .append(product, rhs.product)
             .append(component, rhs.component)
             .append(name, rhs.name)
+            .append(ruleName, ruleName)
             .isEquals();
     }
 }

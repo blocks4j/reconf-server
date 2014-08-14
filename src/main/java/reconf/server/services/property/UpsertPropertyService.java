@@ -48,7 +48,7 @@ public class UpsertPropertyService {
         PropertyKey key = new PropertyKey(product, component, property);
         Property fromRequest = new Property(key, value, description);
         List<String> errors = DomainValidator.checkForErrors(key);
-        if (StringUtils.isNotEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             errors.add(Property.VALUE_MESSAGE);
         }
         if (!errors.isEmpty()) {

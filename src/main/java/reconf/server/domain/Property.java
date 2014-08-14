@@ -18,6 +18,7 @@ package reconf.server.domain;
 import java.io.*;
 import java.util.*;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @Entity
 @Table(name="reconf_property_v1")
@@ -30,6 +31,7 @@ public class Property implements Serializable {
     private static final long serialVersionUID = 1L;
     private PropertyKey key;
     private String value;
+    private String ruleRegexp = "/.*/";
     private String description;
 
     public Property() { }
@@ -72,6 +74,14 @@ public class Property implements Serializable {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Column(length=256, name="rule_regexp") @NotNull
+    public String getRuleRegexp() {
+        return ruleRegexp;
+    }
+    public void setRuleRegexp(String ruleRegexp) {
+        this.ruleRegexp = ruleRegexp;
     }
 
     @Override
