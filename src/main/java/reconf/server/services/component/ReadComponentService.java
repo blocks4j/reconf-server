@@ -34,7 +34,7 @@ public class ReadComponentService {
     @Autowired ComponentRepository components;
 
     @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.GET)
-    @Transactional
+    @Transactional(readOnly=true)
     public ResponseEntity<ComponentResult> doIt(
             @PathVariable("prod") String productId,
             @PathVariable("comp") String componentId,

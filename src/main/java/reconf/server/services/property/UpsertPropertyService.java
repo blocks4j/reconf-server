@@ -37,20 +37,21 @@ public class UpsertPropertyService {
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.PUT)
     @Transactional
-    public ResponseEntity<PropertyResult> doIt(
+    public ResponseEntity<PropertyResult> global(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
-            @RequestBody(required=true) String value,
-            @RequestParam(required=false, value="description") String description,
+            @RequestBody String value,
+            @RequestParam(value="desc", required=false) String description,
+            @RequestParam(value="rname", required=false, defaultValue=Property.DEFAULT_RULE_NAME) String ruleName,
+            @RequestParam(value="rpriority", required=false, defaultValue=Property.DEFAULT_RULE_PRIORITY) Integer rulePriority,
+            @RequestParam(value="rexpr", required=false, defaultValue=Property.DEFAULT_RULE_REGEXP) String ruleRegexp,
             HttpServletRequest request) {
 
-        PropertyKey key = new PropertyKey(product, component, property);
-        Property fromRequest = new Property(key, value, description);
-        List<String> errors = DomainValidator.checkForErrors(key);
-        if (StringUtils.isEmpty(value)) {
-            errors.add(Property.VALUE_MESSAGE);
-        }
+        PropertyKey key = new PropertyKey(product, component, property, ruleName);
+        Property fromRequest = new Property(key, value, description, rulePriority, ruleRegexp);
+        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+
         if (!errors.isEmpty()) {
             return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
@@ -69,8 +70,7 @@ public class UpsertPropertyService {
             status = HttpStatus.OK;
 
         } else {
-            target = new Property(key, value);
-            target.setDescription(description);
+            target = fromRequest;
             properties.save(target);
             status = HttpStatus.CREATED;
         }

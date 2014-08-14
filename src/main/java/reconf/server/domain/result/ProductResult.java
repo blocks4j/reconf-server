@@ -25,13 +25,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class ProductResult {
 
     private String product;
-    private String description;
+    private String desc;
     private Link link;
     private List<String> errors;
 
     private ProductResult(Product arg) {
         this.product = arg.getName();
-        this.description = arg.getDescription();
+        this.desc = arg.getDescription();
     }
 
     public ProductResult(Product arg, String baseURL) {
@@ -52,8 +52,8 @@ public class ProductResult {
         return product;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDesc() {
+        return desc;
     }
 
     public Link getLink() {

@@ -28,13 +28,17 @@ public class PropertyResult {
     private String product;
     private String component;
     private String instance;
+    private String desc;
     private Link link;
     private List<String> errors;
+    private Rule rule;
 
     private PropertyResult(Property arg) {
         this.product = arg.getKey().getProduct();
         this.component = arg.getKey().getComponent();
         this.property = arg.getKey().getName();
+        this.desc = arg.getDescription();
+        this.rule = new Rule(arg);
     }
 
     public PropertyResult(Property arg, String baseURL) {
@@ -71,7 +75,15 @@ public class PropertyResult {
         return link;
     }
 
+    public String getDesc() {
+        return desc;
+    }
+
     public List<String> getErrors() {
         return errors;
+    }
+
+    public Rule getRule() {
+        return rule;
     }
 }

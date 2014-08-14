@@ -29,15 +29,21 @@ public class PropertyKey implements Serializable {
     private String name;
     private String product;
     private String component;
-    private String ruleName = "global";
+    private String ruleName;
 
     public PropertyKey() {
     }
 
     public PropertyKey(String product, String component, String name) {
+        this(product, component, name, Property.DEFAULT_RULE_NAME);
+    }
+
+
+    public PropertyKey(String product, String component, String name, String ruleName) {
         setProduct(product);
         setComponent(component);
         setName(name);
+        setRuleName(ruleName);
     }
 
     @Column(length=256, name="property_name")
@@ -76,7 +82,11 @@ public class PropertyKey implements Serializable {
         this.component = StringUtils.lowerCase(StringUtils.defaultString(component));
     }
 
-    @Column(length=256, name="rule_name") @NotNull
+    @Column(length=256, name="rule_name")
+    @NotBlank(message=Property.RULE_NAME_MESSAGE)
+    @NotNull(message=Property.RULE_NAME_MESSAGE)
+    @Size(min=1, max=256, message=Property.RULE_NAME_MESSAGE)
+    @Pattern(regexp="\\w*", message=Property.RULE_NAME_MESSAGE)
     public String getRuleName() {
         return ruleName;
     }

@@ -37,7 +37,7 @@ public class UpsertProductService {
     @Transactional
     public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
-            @RequestParam(required=false, value="description") String description,
+            @RequestParam(value="desc", required=false) String description,
             HttpServletRequest request) {
 
         Product fromRequest = new Product(product, description);

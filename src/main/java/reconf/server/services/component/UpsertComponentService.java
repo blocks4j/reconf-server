@@ -39,7 +39,7 @@ public class UpsertComponentService {
     public ResponseEntity<ComponentResult> doIt(
             @PathVariable("prod") String productId,
             @PathVariable("comp") String componentId,
-            @RequestParam(required=false, value="description") String description,
+            @RequestParam(value="desc", required=false) String description,
             HttpServletRequest request) {
 
         ComponentKey key = new ComponentKey(productId, componentId);

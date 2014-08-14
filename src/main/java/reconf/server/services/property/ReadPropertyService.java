@@ -18,6 +18,7 @@ package reconf.server.services.property;
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
 import reconf.server.domain.*;
@@ -36,6 +37,7 @@ public class ReadPropertyService {
     private static ObjectMapper mapper = new ObjectMapper();
 
     @RequestMapping(value="/{prod}/{comp}/{prop}", method=RequestMethod.GET)
+    @Transactional(readOnly=true)
     public ResponseEntity<String> doIt(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,

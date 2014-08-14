@@ -13,15 +13,31 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server.repository;
+package reconf.server.domain.result;
 
-import java.util.*;
-import org.springframework.data.repository.*;
 import reconf.server.domain.*;
 
-public interface PropertyRepository extends CrudRepository<Property, PropertyKey> {
+public class Rule {
 
-    List<Property> deleteByKeyProduct(String product);
-    List<Property> deleteByKeyProductAndKeyComponent(String product, String component);
-    List<Property> findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDesc(String product, String component, String name);
+    private String name;
+    private String expr;
+    private Integer priority;
+
+    public Rule(Property arg) {
+        this.name = arg.getKey().getRuleName();
+        this.expr = arg.getRuleRegexp();
+        this.priority = arg.getRulePriority();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getExpr() {
+        return expr;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
 }

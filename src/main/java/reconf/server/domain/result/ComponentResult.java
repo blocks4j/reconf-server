@@ -26,14 +26,14 @@ public class ComponentResult {
 
     private String product;
     private String component;
-    private String description;
+    private String desc;
     private Link link;
     private List<String> errors;
 
     private ComponentResult(Component arg) {
         this.product = arg.getKey().getProduct();
         this.component = arg.getKey().getName();
-        this.description = arg.getDescription();
+        this.desc = arg.getDescription();
     }
 
     public ComponentResult(Component arg, String baseURL) {
@@ -58,8 +58,8 @@ public class ComponentResult {
         return component;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDesc() {
+        return desc;
     }
 
     public List<String> getErrors() {

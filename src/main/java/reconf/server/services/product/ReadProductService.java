@@ -34,7 +34,7 @@ public class ReadProductService {
     @Autowired ProductRepository products;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.GET)
-    @Transactional
+    @Transactional(readOnly=true)
     public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
             HttpServletRequest request) {
