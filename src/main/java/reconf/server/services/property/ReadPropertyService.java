@@ -15,9 +15,8 @@
  */
 package reconf.server.services.property;
 
-import java.util.*;
+import javax.servlet.http.*;
 import org.apache.commons.lang3.*;
-import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
@@ -27,77 +26,72 @@ import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import com.fasterxml.jackson.databind.*;
 
-
-@RestController
-@RequestMapping(value="/",
-    produces = ReConfConstants.MT_PROTOCOL_V1,
-    consumes={ReConfConstants.MT_PROTOCOL_V1, ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
+@CrudService
 public class ReadPropertyService {
 
-    private static final String JS = "var patt = eval(regexp); var result = patt.test(instance);";
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static final Logger log = LoggerFactory.getLogger(ReadPropertyService.class);
-
+    @Autowired ProductRepository products;
+    @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
-    @Autowired JavaScriptEngine engine;
 
-    @RequestMapping(value="/{prod}/{comp}/{prop}", method=RequestMethod.GET)
+    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.GET)
     @Transactional(readOnly=true)
-    public ResponseEntity<String> doIt(
+    public ResponseEntity<PropertyResult> global(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
-            @RequestParam(value="instance", required=false, defaultValue="unknown") String instance) {
+            HttpServletRequest request) {
+
 
         PropertyKey key = new PropertyKey(product, component, property);
-        List<String> errors = DomainValidator.checkForErrors(key);
         Property fromRequest = new Property(key);
 
-        HttpHeaders headers = new HttpHeaders();
-        if (!errors.isEmpty()) {
-            addErrorHeader(headers, errors, fromRequest);
-            return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
+        if (!products.exists(key.getProduct())) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        List<Property> fromDB = properties.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(key.getProduct(), key.getComponent(), key.getName());
-        for (Property each : fromDB) {
-            try {
-                if (isMatch(instance, each)) {
-                    addRuleHeader(headers, each);
-                    return new ResponseEntity<String>(each.getValue(), headers, HttpStatus.OK);
-                }
-            } catch (Exception e) {
-                log.error("error applying rule", e);
-                addRuleHeader(headers, each);
-                addErrorHeader(headers, Collections.singletonList("rule error"), fromRequest);
-                return new ResponseEntity<String>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        Property target = properties.findOne(key);
+        if (target == null) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+
+        PropertyResult result = new PropertyResult(target, getBaseUrl(request));
+        result.addSelfUri(getBaseUrl(request));
+        return new ResponseEntity<PropertyResult>(result, HttpStatus.OK);
     }
 
-    private boolean isMatch(String instance, Property each) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("regexp", each.getRuleRegexp());
-        params.put("instance", StringUtils.lowerCase(instance));
-        return (boolean) engine.eval(JS, params, "result");
-    }
+    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/rule/{rule}", method=RequestMethod.GET)
+    @Transactional(readOnly=true)
+    public ResponseEntity<PropertyRuleResult> restricted(
+            @PathVariable("prod") String product,
+            @PathVariable("comp") String component,
+            @PathVariable("prop") String property,
+            @PathVariable("rule") String rule,
+            HttpServletRequest request) {
 
-    private void addErrorHeader(HttpHeaders headers, List<String> errors, Property fromRequest) {
-        addHeader(headers, ReConfConstants.H_RESPONSE_RESULT, new PropertyResult(fromRequest, errors));
-    }
+        PropertyKey key = new PropertyKey(product, component, property, rule);
+        Property fromRequest = new Property(key);
 
-    private void addRuleHeader(HttpHeaders headers, Property property) {
-        addHeader(headers, ReConfConstants.H_RESPONSE_RULE, new Rule(property));
-    }
-
-    private HttpHeaders addHeader(HttpHeaders headers, String name, Object value) {
-        try {
-            headers.add(name, mapper.writeValueAsString(value));
-        } catch (Exception ignored) {
+        if (!products.exists(key.getProduct())) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
-        return headers;
+        if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        Property target = properties.findOne(key);
+        if (target == null) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        PropertyRuleResult result = new PropertyRuleResult(target, getBaseUrl(request));
+        result.addSelfUri(getBaseUrl(request));
+        return new ResponseEntity<PropertyRuleResult>(result, HttpStatus.OK);
+    }
+
+    private String getBaseUrl(HttpServletRequest req) {
+        return StringUtils.substringBefore(req.getRequestURL().toString(), ReConfServerApplication.CRUD_ROOT);
     }
 }

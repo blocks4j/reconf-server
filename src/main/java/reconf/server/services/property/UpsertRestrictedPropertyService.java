@@ -35,15 +35,15 @@ public class UpsertRestrictedPropertyService {
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
 
-    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/restricted", method=RequestMethod.PUT)
+    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/rule/{rule}", method=RequestMethod.PUT)
     @Transactional
     public ResponseEntity<PropertyRuleResult> restricted(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
+            @PathVariable("rule") String ruleName,
             @RequestBody String value,
             @RequestParam(value="desc", required=false) String description,
-            @RequestParam(value="rname", required=false) String ruleName,
             @RequestParam(value="rpriority", required=false) Integer rulePriority,
             @RequestParam(value="rexpr", required=false) String ruleRegexp,
             HttpServletRequest request) {

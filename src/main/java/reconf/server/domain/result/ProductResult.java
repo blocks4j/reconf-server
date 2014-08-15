@@ -26,7 +26,7 @@ public class ProductResult {
 
     private String product;
     private String desc;
-    private Link link;
+    private List<Link> links;
     private List<String> errors;
 
     private ProductResult(Product arg) {
@@ -36,7 +36,8 @@ public class ProductResult {
 
     public ProductResult(Product arg, String baseURL) {
         this(arg);
-        this.link = new Link(URI.create(baseURL + getUriOf(arg)), "self");
+        this.links = new ArrayList<>();
+        this.links.add(new Link(URI.create(baseURL + getUriOf(arg)), "self"));
     }
 
     public ProductResult(Product arg, List<String> errors) {
@@ -56,8 +57,8 @@ public class ProductResult {
         return desc;
     }
 
-    public Link getLink() {
-        return link;
+    public List<Link> getLinks() {
+        return links;
     }
 
     public List<String> getErrors() {

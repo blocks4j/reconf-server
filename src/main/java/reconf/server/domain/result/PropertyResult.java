@@ -29,7 +29,7 @@ public class PropertyResult {
     private String component;
     private String instance;
     private String desc;
-    private Link link;
+    private List<Link> links;
     private List<String> errors;
 
     protected PropertyResult(Property arg) {
@@ -39,9 +39,10 @@ public class PropertyResult {
         this.desc = arg.getDescription();
     }
 
-    public PropertyResult(Property arg, String baseURL) {
+    public PropertyResult(Property arg, String baseUrl) {
         this(arg);
-        this.link = new Link(URI.create(baseURL + getUriOf(arg)), "alternate");
+        this.links = new ArrayList<>();
+        this.links.add(new Link(URI.create(baseUrl + getAlternateUri(arg)), "alternate"));
     }
 
     public PropertyResult(Property arg, List<String> errors) {
@@ -49,8 +50,19 @@ public class PropertyResult {
         this.errors = errors;
     }
 
-    private static String getUriOf(Property property) {
+    public void addSelfUri(String baseUrl) {
+        if (links == null) {
+            links = new ArrayList<>();
+        }
+        this.links.add(new Link(URI.create(baseUrl + getSelfUri()), "self"));
+    }
+
+    private String getAlternateUri(Property property) {
         return "/" + property.getKey().getProduct() + "/" + property.getKey().getComponent() + "/" + property.getKey().getName();
+    }
+
+    protected String getSelfUri() {
+        return "/product/" + product + "/component/" + component + "/property/" + property;
     }
 
     public String getProperty() {
@@ -69,8 +81,8 @@ public class PropertyResult {
         return instance;
     }
 
-    public Link getLink() {
-        return link;
+    public List<Link> getLinks() {
+        return links;
     }
 
     public String getDesc() {

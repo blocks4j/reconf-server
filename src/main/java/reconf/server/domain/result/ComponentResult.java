@@ -27,7 +27,7 @@ public class ComponentResult {
     private String product;
     private String component;
     private String desc;
-    private Link link;
+    private List<Link> links;
     private List<String> errors;
 
     private ComponentResult(Component arg) {
@@ -38,7 +38,8 @@ public class ComponentResult {
 
     public ComponentResult(Component arg, String baseURL) {
         this(arg);
-        this.link = new Link(URI.create(baseURL + getUriOf(arg)), "self");
+        this.links = new ArrayList<>();
+        this.links.add(new Link(URI.create(baseURL + getUriOf(arg)), "self"));
     }
 
     public ComponentResult(Component arg, List<String> errors) {
@@ -66,7 +67,7 @@ public class ComponentResult {
         return errors;
     }
 
-    public Link getLink() {
-        return link;
+    public List<Link> getLinks() {
+        return links;
     }
 }

@@ -33,7 +33,7 @@ public class ReadPropertyServiceTest {
     MockMvc mockMvc;
 
     @InjectMocks
-    ReadPropertyService service;
+    ClientReadPropertyService service;
 
     @Mock
     PropertyRepository repository;

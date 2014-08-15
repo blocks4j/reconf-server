@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -G http://localhost:8080/crud/product/product1
+curl --user reconf:reconf -G 'http://localhost:8080/crud/product/product1'

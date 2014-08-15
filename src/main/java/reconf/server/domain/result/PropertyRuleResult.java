@@ -15,75 +15,37 @@
  */
 package reconf.server.domain.result;
 
-import java.net.*;
 import java.util.*;
 import reconf.server.domain.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-public class PropertyRuleResult {
+public class PropertyRuleResult extends PropertyResult {
 
-    private String property;
-    private String product;
-    private String component;
-    private String instance;
-    private String desc;
-    private Link link;
-    private List<String> errors;
     private Rule rule;
 
     private PropertyRuleResult(Property arg) {
-        this.product = arg.getKey().getProduct();
-        this.component = arg.getKey().getComponent();
-        this.property = arg.getKey().getName();
-        this.desc = arg.getDescription();
+        super(arg);
         this.rule = new Rule(arg);
     }
 
     public PropertyRuleResult(Property arg, String baseURL) {
-        this(arg);
-        this.link = new Link(URI.create(baseURL + getUriOf(arg)), "alternate");
+        super(arg, baseURL);
+        this.rule = new Rule(arg);
     }
 
     public PropertyRuleResult(Property arg, List<String> errors) {
-        this(arg);
-        this.errors = errors;
-    }
-
-    private static String getUriOf(Property property) {
-        return "/" + property.getKey().getProduct() + "/" + property.getKey().getComponent() + "/" + property.getKey().getName();
-    }
-
-    public String getProperty() {
-        return property;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public String getComponent() {
-        return component;
-    }
-
-    public String getInstance() {
-        return instance;
-    }
-
-    public Link getLink() {
-        return link;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public List<String> getErrors() {
-        return errors;
+        super(arg, errors);
+        this.rule = new Rule(arg);
     }
 
     public Rule getRule() {
         return rule;
     }
+
+    protected String getSelfUri() {
+        return super.getSelfUri() + "/rule/" + rule.getName();
+    }
+
 }

@@ -32,12 +32,35 @@ public class DeletePropertyService {
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.DELETE)
     @Transactional
-    public ResponseEntity<PropertyResult> doIt(
+    public ResponseEntity<PropertyResult> global(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property) {
 
         PropertyKey key = new PropertyKey(product, component, property);
+        Property fromRequest = new Property(key, null);
+
+        List<String> errors = DomainValidator.checkForErrors(key);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!properties.exists(key)) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        properties.delete(key);
+        return new ResponseEntity<PropertyResult>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/rule/{rule}", method=RequestMethod.DELETE)
+    @Transactional
+    public ResponseEntity<PropertyResult> resticted(
+            @PathVariable("prod") String product,
+            @PathVariable("comp") String component,
+            @PathVariable("prop") String property,
+            @PathVariable("rule") String rule) {
+
+        PropertyKey key = new PropertyKey(product, component, property, rule);
         Property fromRequest = new Property(key, null);
 
         List<String> errors = DomainValidator.checkForErrors(key);
