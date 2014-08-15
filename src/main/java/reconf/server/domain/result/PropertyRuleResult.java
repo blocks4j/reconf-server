@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-public class PropertyResult {
+public class PropertyRuleResult {
 
     private String property;
     private String product;
@@ -31,20 +31,22 @@ public class PropertyResult {
     private String desc;
     private Link link;
     private List<String> errors;
+    private Rule rule;
 
-    protected PropertyResult(Property arg) {
+    private PropertyRuleResult(Property arg) {
         this.product = arg.getKey().getProduct();
         this.component = arg.getKey().getComponent();
         this.property = arg.getKey().getName();
         this.desc = arg.getDescription();
+        this.rule = new Rule(arg);
     }
 
-    public PropertyResult(Property arg, String baseURL) {
+    public PropertyRuleResult(Property arg, String baseURL) {
         this(arg);
         this.link = new Link(URI.create(baseURL + getUriOf(arg)), "alternate");
     }
 
-    public PropertyResult(Property arg, List<String> errors) {
+    public PropertyRuleResult(Property arg, List<String> errors) {
         this(arg);
         this.errors = errors;
     }
@@ -79,5 +81,9 @@ public class PropertyResult {
 
     public List<String> getErrors() {
         return errors;
+    }
+
+    public Rule getRule() {
+        return rule;
     }
 }

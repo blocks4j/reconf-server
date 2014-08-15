@@ -23,5 +23,5 @@ public interface PropertyRepository extends CrudRepository<Property, PropertyKey
 
     List<Property> deleteByKeyProduct(String product);
     List<Property> deleteByKeyProductAndKeyComponent(String product, String component);
-    List<Property> findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDesc(String product, String component, String name);
+    List<Property> findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(String product, String component, String name);
 }

@@ -16,7 +16,8 @@
 package reconf.server.services.property;
 
 import java.util.*;
-import javax.script.*;
+import org.apache.commons.lang3.*;
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
@@ -25,6 +26,7 @@ import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
+import reconf.server.services.*;
 import com.fasterxml.jackson.databind.*;
 
 
@@ -34,9 +36,12 @@ import com.fasterxml.jackson.databind.*;
     consumes={ReConfConstants.MT_PROTOCOL_V1, ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
 public class ReadPropertyService {
 
-    @Autowired PropertyRepository properties;
     private static final String JS = "var patt = eval(regexp); var result = patt.test(instance);";
     private static ObjectMapper mapper = new ObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(ReadPropertyService.class);
+
+    @Autowired PropertyRepository properties;
+    @Autowired JavaScriptEngine engine;
 
     @RequestMapping(value="/{prod}/{comp}/{prop}", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -56,42 +61,41 @@ public class ReadPropertyService {
             return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
 
-        List<Property> fromDB = properties.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDesc(key.getProduct(), key.getComponent(), key.getName());
+        List<Property> fromDB = properties.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(key.getProduct(), key.getComponent(), key.getName());
         for (Property each : fromDB) {
-            if (isMatch(instance, each)) {
+            try {
+                if (isMatch(instance, each)) {
+                    addRuleHeader(headers, each);
+                    return new ResponseEntity<String>(each.getValue(), headers, HttpStatus.OK);
+                }
+            } catch (Exception e) {
+                log.error("error applying rule", e);
                 addRuleHeader(headers, each);
-                return new ResponseEntity<String>(each.getValue(), headers, HttpStatus.OK);
+                addErrorHeader(headers, Collections.singletonList("rule error"), fromRequest);
+                return new ResponseEntity<String>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
         return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
     }
 
     private boolean isMatch(String instance, Property each) {
-        try {
-            ScriptEngineManager factory = new ScriptEngineManager();
-            ScriptEngine engine = factory.getEngineByName("JavaScript");
-            engine.put("regexp", each.getRuleRegexp());
-            engine.put("instance", instance);
-            engine.eval(JS);
-            return (boolean) engine.get("result");
-        } catch (Exception e) {
-        }
-        return false;
+        Map<String, Object> params = new HashMap<>();
+        params.put("regexp", each.getRuleRegexp());
+        params.put("instance", StringUtils.lowerCase(instance));
+        return (boolean) engine.eval(JS, params, "result");
     }
 
-    private HttpHeaders addErrorHeader(HttpHeaders headers, List<String> errors, Property fromRequest) {
-
-        try {
-            headers.add(ReConfConstants.H_RESPONSE_RESULT, mapper.writeValueAsString(new PropertyResult(fromRequest, errors)));
-        } catch (Exception ignored) {
-        }
-        return headers;
+    private void addErrorHeader(HttpHeaders headers, List<String> errors, Property fromRequest) {
+        addHeader(headers, ReConfConstants.H_RESPONSE_RESULT, new PropertyResult(fromRequest, errors));
     }
 
-    private HttpHeaders addRuleHeader(HttpHeaders headers, Property property) {
+    private void addRuleHeader(HttpHeaders headers, Property property) {
+        addHeader(headers, ReConfConstants.H_RESPONSE_RULE, new Rule(property));
+    }
 
+    private HttpHeaders addHeader(HttpHeaders headers, String name, Object value) {
         try {
-            headers.add(ReConfConstants.H_RESPONSE_RULE, mapper.writeValueAsString(new Rule(property)));
+            headers.add(name, mapper.writeValueAsString(value));
         } catch (Exception ignored) {
         }
         return headers;

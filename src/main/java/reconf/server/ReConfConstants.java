@@ -31,5 +31,5 @@ public final class ReConfConstants {
      * Headers
      */
     public static final String H_RESPONSE_RESULT = "X-ReConf-Result";
-    public static final String H_RESPONSE_RULE = "X-ReConf-Chosen-Rule";
+    public static final String H_RESPONSE_RULE = "X-ReConf-Rule";
 }

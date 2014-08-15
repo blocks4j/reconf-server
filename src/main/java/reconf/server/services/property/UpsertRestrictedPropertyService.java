@@ -29,34 +29,37 @@ import reconf.server.repository.*;
 import reconf.server.services.*;
 
 @CrudService
-public class UpsertPropertyService {
+public class UpsertRestrictedPropertyService {
 
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
 
-    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.PUT)
+    @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/restricted", method=RequestMethod.PUT)
     @Transactional
-    public ResponseEntity<PropertyResult> global(
+    public ResponseEntity<PropertyRuleResult> restricted(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
             @PathVariable("prop") String property,
             @RequestBody String value,
             @RequestParam(value="desc", required=false) String description,
+            @RequestParam(value="rname", required=false) String ruleName,
+            @RequestParam(value="rpriority", required=false) Integer rulePriority,
+            @RequestParam(value="rexpr", required=false) String ruleRegexp,
             HttpServletRequest request) {
 
-        PropertyKey key = new PropertyKey(product, component, property);
-        Property fromRequest = new Property(key, value, description);
+        PropertyKey key = new PropertyKey(product, component, property, ruleName);
+        Property fromRequest = new Property(key, value, description, rulePriority, ruleRegexp);
         List<String> errors = DomainValidator.checkForErrors(fromRequest);
 
         if (!errors.isEmpty()) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
         }
         if (!products.exists(key.getProduct())) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
         HttpStatus status = null;
@@ -71,7 +74,7 @@ public class UpsertPropertyService {
             properties.save(target);
             status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<PropertyResult>(new PropertyResult(target, getBaseUrl(request)), status);
+        return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(target, getBaseUrl(request)), status);
     }
 
     private String getBaseUrl(HttpServletRequest req) {
