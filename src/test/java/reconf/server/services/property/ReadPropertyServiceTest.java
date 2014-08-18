@@ -21,12 +21,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 import static reconf.server.domain.fixture.RestDataFixture.*;
+import java.util.*;
 import org.junit.*;
 import org.mockito.*;
 import org.springframework.test.web.servlet.*;
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
+import reconf.server.services.*;
 
 public class ReadPropertyServiceTest {
 
@@ -36,7 +38,10 @@ public class ReadPropertyServiceTest {
     ClientReadPropertyService service;
 
     @Mock
-    PropertyRepository repository;
+    PropertyRepository propertyRepository;
+
+    @Mock
+    JavaScriptEngine jsEngine;
 
     @Before
     public void setup() {
@@ -49,7 +54,10 @@ public class ReadPropertyServiceTest {
     public void found() throws Exception {
         Property property = standardProperty();
 
-        when(repository.findOne(property.getKey())).thenReturn(property);
+        when(propertyRepository.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME))
+            .thenReturn(Collections.singletonList(property));
+
+        when(jsEngine.eval(Mockito.anyString(), Mockito.anyMap(), Mockito.anyString())).thenReturn(true);
 
         this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
             .accept(ReConfConstants.MT_PROTOCOL_V1))
@@ -57,20 +65,19 @@ public class ReadPropertyServiceTest {
             .andExpect(status().isOk())
             .andExpect(content().string(property.getValue()));
 
-        verify(repository).findOne(property.getKey());
+        verify(propertyRepository).findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME);
     }
 
     @Test
     public void not_found() throws Exception {
-        Property property = standardProperty();
-
-        when(repository.findOne(property.getKey())).thenReturn(null);
+        when(propertyRepository.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME))
+        .thenReturn(Collections.EMPTY_LIST);
 
         this.mockMvc.perform(get("/{prod}/{comp}/{prop}", PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME)
             .accept(ReConfConstants.MT_PROTOCOL_V1))
             .andDo(print())
             .andExpect(status().isNotFound());
 
-        verify(repository).findOne(property.getKey());
+        verify(propertyRepository).findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(PROPERTY_KEY_PRODUCT, PROPERTY_KEY_COMPONENT, PROPERTY_KEY_NAME);
     }
 }

@@ -34,6 +34,7 @@ public class Property implements Serializable {
     public static final String RULE_PRIORITY_MESSAGE = "rule priority must be an integer bigger than 0 and lower than 2^31-1";
     public static final String DEFAULT_RULE_NAME = "global";
     public static final String DEFAULT_RULE_PRIORITY = "0";
+    public static final int DEFAULT_RULE_PRIORITY_INT = Integer.parseInt(DEFAULT_RULE_PRIORITY);
     public static final String DEFAULT_RULE_REGEXP = "/.*/";
 
     public static final List<String> NOT_FOUND = Collections.singletonList("property not found");

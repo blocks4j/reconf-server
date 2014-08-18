@@ -80,7 +80,7 @@ public class ClientReadPropertyService {
 
     private boolean isMatch(String instance, Property each) {
         Map<String, Object> params = new HashMap<>();
-        params.put("regexp", each.getRuleRegexp());
+        params.put("regexp", StringUtils.defaultString(each.getRuleRegexp()));
         params.put("instance", StringUtils.lowerCase(instance));
         return (boolean) engine.eval(JS, params, "result");
     }

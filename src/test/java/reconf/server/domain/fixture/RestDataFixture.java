@@ -20,9 +20,9 @@ import reconf.server.domain.*;
 
 public class RestDataFixture {
 
-    public static final String PROPERTY_KEY_PRODUCT = "sample-prod";
-    public static final String PROPERTY_KEY_COMPONENT = "sample-comp";
-    public static final String PROPERTY_KEY_NAME = "sample-prop";
+    public static final String PROPERTY_KEY_PRODUCT = "sample_prod";
+    public static final String PROPERTY_KEY_COMPONENT = "sample_comp";
+    public static final String PROPERTY_KEY_NAME = "sample_prop";
     public static final String PROPERTY_VALUE = "'sample value'";
     public static final String EMPTY_VALUE = StringUtils.EMPTY;
 
@@ -32,7 +32,7 @@ public class RestDataFixture {
         propertyKey.setProduct(PROPERTY_KEY_PRODUCT);
         propertyKey.setComponent(PROPERTY_KEY_COMPONENT);
         propertyKey.setName(PROPERTY_KEY_NAME);
-
+        propertyKey.setRuleName(Property.DEFAULT_RULE_NAME);
         return propertyKey;
     }
 
@@ -41,6 +41,8 @@ public class RestDataFixture {
 
         property.setKey(standardPropertyKey());
         property.setValue(PROPERTY_VALUE);
+        property.setRulePriority(Property.DEFAULT_RULE_PRIORITY_INT);
+        property.setRuleRegexp(Property.DEFAULT_RULE_REGEXP);
 
         return property;
     }
