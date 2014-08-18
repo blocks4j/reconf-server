@@ -47,6 +47,7 @@ public class UpsertRestrictedPropertyService {
             HttpServletRequest request) {
 
         //FIXME without a global property, it's not possible to insert a ruled property
+        //FIXME it's not possible to override the global property
 
         PropertyKey key = new PropertyKey(product, component, property, ruleName);
         Property reqProperty = new Property(key, value, description, rulePriority, ruleRegexp);
