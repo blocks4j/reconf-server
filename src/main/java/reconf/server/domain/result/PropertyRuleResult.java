@@ -45,7 +45,13 @@ public class PropertyRuleResult extends PropertyResult {
     }
 
     protected String getSelfUri() {
-        return super.getSelfUri() + "/rule/" + rule.getName();
+        if (rule != null) {
+            return super.getSelfUri() + "/rule/" + rule.getName();
+        }
+        return super.getSelfUri();
     }
 
+    public void clearRule() {
+        this.rule = null;
+    }
 }

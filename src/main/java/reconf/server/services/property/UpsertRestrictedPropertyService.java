@@ -46,6 +46,8 @@ public class UpsertRestrictedPropertyService {
             @RequestParam(value="rexpr", required=false) String ruleRegexp,
             HttpServletRequest request) {
 
+        //FIXME without a global property, it's not possible to insert a ruled property
+
         PropertyKey key = new PropertyKey(product, component, property, ruleName);
         Property reqProperty = new Property(key, value, description, rulePriority, ruleRegexp);
         List<String> errors = DomainValidator.checkForErrors(reqProperty);

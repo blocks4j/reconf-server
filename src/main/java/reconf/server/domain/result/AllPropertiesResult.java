@@ -22,50 +22,30 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-public class PropertyResult {
+public class AllPropertiesResult {
 
-    private String property;
     private String product;
     private String component;
-    private String desc;
+    private List<PropertyRuleResult> properties;
     private List<Link> links;
     private List<String> errors;
 
-    protected PropertyResult(Property arg) {
-        this.product = arg.getKey().getProduct();
-        this.component = arg.getKey().getComponent();
-        this.property = arg.getKey().getName();
-        this.desc = arg.getDescription();
-    }
-
-    public PropertyResult(Property arg, String baseUrl) {
-        this(arg);
+    public AllPropertiesResult(ComponentKey key, List<PropertyRuleResult> properties, String baseUrl) {
+        this.product = key.getProduct();
+        this.component = key.getName();
+        this.properties = properties;
         this.links = new ArrayList<>();
-        this.links.add(new Link(URI.create(baseUrl + getAlternateUri(arg)), "alternate"));
+        this.links.add(new Link(URI.create(baseUrl + getUri()), "self"));
     }
 
-    public PropertyResult(Property arg, List<String> errors) {
-        this(arg);
+    public AllPropertiesResult(ComponentKey key, List<String> errors) {
+        this.product = key.getProduct();
+        this.component = key.getName();
         this.errors = errors;
     }
 
-    public void addSelfUri(String baseUrl) {
-        if (links == null) {
-            links = new ArrayList<>();
-        }
-        this.links.add(new Link(URI.create(baseUrl + getSelfUri()), "self"));
-    }
-
-    private String getAlternateUri(Property property) {
-        return "/" + property.getKey().getProduct() + "/" + property.getKey().getComponent() + "/" + property.getKey().getName();
-    }
-
-    protected String getSelfUri() {
-        return "/product/" + product + "/component/" + component + "/property/" + property;
-    }
-
-    public String getProperty() {
-        return property;
+    private String getUri() {
+        return "/product/" + product + "/component/" + component + "/property";
     }
 
     public String getProduct() {
@@ -76,12 +56,12 @@ public class PropertyResult {
         return component;
     }
 
-    public List<Link> getLinks() {
-        return links;
+    public List<PropertyRuleResult> getProperties() {
+        return properties;
     }
 
-    public String getDesc() {
-        return desc;
+    public List<Link> getLinks() {
+        return links;
     }
 
     public List<String> getErrors() {
