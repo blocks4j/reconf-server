@@ -27,27 +27,21 @@ import reconf.server.repository.*;
 import reconf.server.services.*;
 
 @CrudService
-public class ReadProductService {
+public class ReadAllProductsService {
 
     @Autowired ProductRepository products;
 
-    @RequestMapping(value="/product/{prod}", method=RequestMethod.GET)
+    @RequestMapping(value="/product", method=RequestMethod.GET)
     @Transactional(readOnly=true)
-    public ResponseEntity<ProductResult> doIt(
-            @PathVariable("prod") String product,
-            HttpServletRequest request) {
+    public ResponseEntity<AllProductsResult> doIt(HttpServletRequest request) {
 
-        Product fromRequest = new Product(product, null);
-        List<String> errors = DomainValidator.checkForErrors(fromRequest);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+        String baseUrl = CrudServiceUtils.getBaseUrl(request);
+        List<ProductResult> result = new ArrayList<>();
+        for (Product product : products.findAll()) {
+            result.add(new ProductResult(product, baseUrl));
         }
 
-        Product target = products.findOne(fromRequest.getName());
-        if (target == null) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<ProductResult>(new ProductResult(target, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<AllProductsResult>(new AllProductsResult(result, baseUrl), HttpStatus.OK);
     }
+
 }

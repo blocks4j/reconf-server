@@ -17,12 +17,10 @@ package reconf.server.services.property;
 
 import java.util.*;
 import javax.servlet.http.*;
-import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
@@ -74,10 +72,6 @@ public class UpsertRestrictedPropertyService {
             properties.save(target);
             status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(target, getBaseUrl(request)), status);
-    }
-
-    private String getBaseUrl(HttpServletRequest req) {
-        return StringUtils.substringBefore(req.getRequestURL().toString(), ReConfServerApplication.CRUD_ROOT);
+        return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(target, CrudServiceUtils.getBaseUrl(request)), status);
     }
 }

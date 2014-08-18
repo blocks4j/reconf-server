@@ -17,12 +17,10 @@ package reconf.server.services.component;
 
 import java.util.*;
 import javax.servlet.http.*;
-import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
@@ -54,11 +52,6 @@ public class ReadComponentService {
             return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<ComponentResult>(new ComponentResult(target, getBaseUrl(request)), HttpStatus.OK);
-    }
-
-    private String getBaseUrl(HttpServletRequest req) {
-        String url = req.getRequestURL().toString();
-        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfServerApplication.CRUD_ROOT), "");
+        return new ResponseEntity<ComponentResult>(new ComponentResult(target, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
     }
 }

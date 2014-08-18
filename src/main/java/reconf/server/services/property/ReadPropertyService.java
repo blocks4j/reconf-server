@@ -16,12 +16,10 @@
 package reconf.server.services.property;
 
 import javax.servlet.http.*;
-import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
@@ -58,8 +56,8 @@ public class ReadPropertyService {
             return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        PropertyResult result = new PropertyResult(target, getBaseUrl(request));
-        result.addSelfUri(getBaseUrl(request));
+        PropertyResult result = new PropertyResult(target, CrudServiceUtils.getBaseUrl(request));
+        result.addSelfUri(CrudServiceUtils.getBaseUrl(request));
         return new ResponseEntity<PropertyResult>(result, HttpStatus.OK);
     }
 
@@ -86,12 +84,8 @@ public class ReadPropertyService {
         if (target == null) {
             return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
-        PropertyRuleResult result = new PropertyRuleResult(target, getBaseUrl(request));
-        result.addSelfUri(getBaseUrl(request));
+        PropertyRuleResult result = new PropertyRuleResult(target, CrudServiceUtils.getBaseUrl(request));
+        result.addSelfUri(CrudServiceUtils.getBaseUrl(request));
         return new ResponseEntity<PropertyRuleResult>(result, HttpStatus.OK);
-    }
-
-    private String getBaseUrl(HttpServletRequest req) {
-        return StringUtils.substringBefore(req.getRequestURL().toString(), ReConfServerApplication.CRUD_ROOT);
     }
 }
