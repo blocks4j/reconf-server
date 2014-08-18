@@ -38,24 +38,24 @@ public class UpsertProductService {
             @RequestParam(value="desc", required=false) String description,
             HttpServletRequest request) {
 
-        Product fromRequest = new Product(product, description);
-        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        Product reqProduct = new Product(product, description);
+        List<String> errors = DomainValidator.checkForErrors(reqProduct);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
         HttpStatus status = null;
-        Product target = products.findOne(fromRequest.getName());
-        if (target != null) {
-            target.setDescription(description);
+        Product dbProduct = products.findOne(reqProduct.getName());
+        if (dbProduct != null) {
+            dbProduct.setDescription(description);
             status = HttpStatus.OK;
 
         } else {
-            target = new Product(fromRequest.getName(), fromRequest.getDescription());
-            target.setDescription(description);
-            products.save(target);
+            dbProduct = new Product(reqProduct.getName(), reqProduct.getDescription());
+            dbProduct.setDescription(description);
+            products.save(dbProduct);
             status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<ProductResult>(new ProductResult(target, CrudServiceUtils.getBaseUrl(request)), status);
+        return new ResponseEntity<ProductResult>(new ProductResult(dbProduct, CrudServiceUtils.getBaseUrl(request)), status);
     }
 }

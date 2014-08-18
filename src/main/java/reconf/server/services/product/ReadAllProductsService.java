@@ -37,6 +37,7 @@ public class ReadAllProductsService {
 
         String baseUrl = CrudServiceUtils.getBaseUrl(request);
         List<ProductResult> result = new ArrayList<>();
+
         for (Product product : products.findAll()) {
             result.add(new ProductResult(product, baseUrl));
         }

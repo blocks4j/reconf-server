@@ -53,25 +53,25 @@ public class ClientReadPropertyService {
 
         PropertyKey key = new PropertyKey(product, component, property);
         List<String> errors = DomainValidator.checkForErrors(key);
-        Property fromRequest = new Property(key);
+        Property reqProperty = new Property(key);
 
         HttpHeaders headers = new HttpHeaders();
         if (!errors.isEmpty()) {
-            addErrorHeader(headers, errors, fromRequest);
+            addErrorHeader(headers, errors, reqProperty);
             return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
 
-        List<Property> fromDB = properties.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(key.getProduct(), key.getComponent(), key.getName());
-        for (Property each : fromDB) {
+        List<Property> dbProperties = properties.findByKeyProductAndKeyComponentAndKeyNameOrderByRulePriorityDescKeyRuleNameAsc(key.getProduct(), key.getComponent(), key.getName());
+        for (Property dbProperty : dbProperties) {
             try {
-                if (isMatch(instance, each)) {
-                    addRuleHeader(headers, each);
-                    return new ResponseEntity<String>(each.getValue(), headers, HttpStatus.OK);
+                if (isMatch(instance, dbProperty)) {
+                    addRuleHeader(headers, dbProperty);
+                    return new ResponseEntity<String>(dbProperty.getValue(), headers, HttpStatus.OK);
                 }
             } catch (Exception e) {
                 log.error("error applying rule", e);
-                addRuleHeader(headers, each);
-                addErrorHeader(headers, Collections.singletonList("rule error"), fromRequest);
+                addRuleHeader(headers, dbProperty);
+                addErrorHeader(headers, Collections.singletonList("rule error"), reqProperty);
                 return new ResponseEntity<String>(headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }

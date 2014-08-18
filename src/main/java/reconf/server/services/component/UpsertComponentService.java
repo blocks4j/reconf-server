@@ -41,27 +41,27 @@ public class UpsertComponentService {
             HttpServletRequest request) {
 
         ComponentKey key = new ComponentKey(productId, componentId);
-        Component fromRequest = new Component(key, description);
+        Component reqComponent = new Component(key, description);
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(reqComponent, errors), HttpStatus.BAD_REQUEST);
         }
 
         Product product = products.findOne(key.getProduct());
         if (product == null) {
-            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(reqComponent, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         HttpStatus status = null;
-        Component component = components.findOne(key);
-        if (component == null) {
-            component = new Component(key, description);
-            components.save(component);
+        Component dbComponent = components.findOne(key);
+        if (dbComponent == null) {
+            dbComponent = new Component(key, description);
+            components.save(dbComponent);
             status = HttpStatus.CREATED;
 
         } else {
-            component.setDescription(description);
+            dbComponent.setDescription(description);
             status = HttpStatus.OK;
         }
-        return new ResponseEntity<ComponentResult>(new ComponentResult(component, CrudServiceUtils.getBaseUrl(request)), status);
+        return new ResponseEntity<ComponentResult>(new ComponentResult(dbComponent, CrudServiceUtils.getBaseUrl(request)), status);
     }
 }

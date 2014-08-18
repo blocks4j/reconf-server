@@ -37,17 +37,17 @@ public class ReadProductService {
             @PathVariable("prod") String product,
             HttpServletRequest request) {
 
-        Product fromRequest = new Product(product, null);
-        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        Product reqProduct = new Product(product, null);
+        List<String> errors = DomainValidator.checkForErrors(reqProduct);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
-        Product target = products.findOne(fromRequest.getName());
-        if (target == null) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        Product dbProduct = products.findOne(reqProduct.getName());
+        if (dbProduct == null) {
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<ProductResult>(new ProductResult(target, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<ProductResult>(new ProductResult(dbProduct, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
     }
 }

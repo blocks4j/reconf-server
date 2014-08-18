@@ -42,21 +42,21 @@ public class ReadPropertyService {
 
 
         PropertyKey key = new PropertyKey(product, component, property);
-        Property fromRequest = new Property(key);
+        Property reqProperty = new Property(key);
 
         if (!products.exists(key.getProduct())) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyResult>(new PropertyResult(reqProperty, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyResult>(new PropertyResult(reqProperty, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        Property target = properties.findOne(key);
-        if (target == null) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
+        Property dbProperty = properties.findOne(key);
+        if (dbProperty == null) {
+            return new ResponseEntity<PropertyResult>(new PropertyResult(reqProperty, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        PropertyResult result = new PropertyResult(target, CrudServiceUtils.getBaseUrl(request));
+        PropertyResult result = new PropertyResult(dbProperty, CrudServiceUtils.getBaseUrl(request));
         result.addSelfUri(CrudServiceUtils.getBaseUrl(request));
         return new ResponseEntity<PropertyResult>(result, HttpStatus.OK);
     }

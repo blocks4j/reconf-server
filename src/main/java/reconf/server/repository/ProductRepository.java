@@ -19,4 +19,5 @@ import org.springframework.data.repository.*;
 import reconf.server.domain.*;
 
 public interface ProductRepository extends CrudRepository<Product, String> {
+
 }

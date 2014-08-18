@@ -38,15 +38,15 @@ public class DeletePropertyService {
             @PathVariable("prop") String property) {
 
         PropertyKey key = new PropertyKey(product, component, property);
-        Property fromRequest = new Property(key, null);
+        Property reqProperty = new Property(key, null);
 
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<PropertyResult>(new PropertyResult(reqProperty, errors), HttpStatus.BAD_REQUEST);
         }
 
         if (!properties.exists(key)) {
-            return new ResponseEntity<PropertyResult>(new PropertyResult(fromRequest, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyResult>(new PropertyResult(reqProperty, Property.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         properties.delete(key);
         return new ResponseEntity<PropertyResult>(HttpStatus.OK);

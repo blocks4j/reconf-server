@@ -40,18 +40,18 @@ public class ReadComponentService {
 
 
         ComponentKey key = new ComponentKey(productId, componentId);
-        Component fromRequest = new Component(key);
+        Component reqComponent = new Component(key);
 
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ComponentResult>(new ComponentResult(reqComponent, errors), HttpStatus.BAD_REQUEST);
         }
 
-        Component target = components.findOne(key);
-        if (target == null) {
-            return new ResponseEntity<ComponentResult>(new ComponentResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+        Component dbComponent = components.findOne(key);
+        if (dbComponent == null) {
+            return new ResponseEntity<ComponentResult>(new ComponentResult(reqComponent, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<ComponentResult>(new ComponentResult(target, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<ComponentResult>(new ComponentResult(dbComponent, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);
     }
 }

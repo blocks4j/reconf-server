@@ -36,19 +36,19 @@ public class DeleteProductService {
     @Transactional
     public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product) {
 
-        Product fromRequest = new Product(product, null);
-        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        Product reqProduct = new Product(product, null);
+        List<String> errors = DomainValidator.checkForErrors(reqProduct);
         if (!errors.isEmpty()) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
-        if (!products.exists(fromRequest.getName())) {
-            return new ResponseEntity<ProductResult>(new ProductResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        if (!products.exists(reqProduct.getName())) {
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        products.delete(fromRequest.getName());
-        components.deleteByKeyProduct(fromRequest.getName());
-        properties.deleteByKeyProduct(fromRequest.getName());
+        products.delete(reqProduct.getName());
+        components.deleteByKeyProduct(reqProduct.getName());
+        properties.deleteByKeyProduct(reqProduct.getName());
         return new ResponseEntity<ProductResult>(HttpStatus.OK);
     }
 }

@@ -47,31 +47,31 @@ public class UpsertRestrictedPropertyService {
             HttpServletRequest request) {
 
         PropertyKey key = new PropertyKey(product, component, property, ruleName);
-        Property fromRequest = new Property(key, value, description, rulePriority, ruleRegexp);
-        List<String> errors = DomainValidator.checkForErrors(fromRequest);
+        Property reqProperty = new Property(key, value, description, rulePriority, ruleRegexp);
+        List<String> errors = DomainValidator.checkForErrors(reqProperty);
 
         if (!errors.isEmpty()) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, errors), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, errors), HttpStatus.BAD_REQUEST);
         }
         if (!products.exists(key.getProduct())) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(fromRequest, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
         HttpStatus status = null;
-        Property target = properties.findOne(key);
-        if (target != null) {
-            target.setValue(value);
-            target.setDescription(description);
+        Property dbProperty = properties.findOne(key);
+        if (dbProperty != null) {
+            dbProperty.setValue(value);
+            dbProperty.setDescription(description);
             status = HttpStatus.OK;
 
         } else {
-            target = fromRequest;
-            properties.save(target);
+            dbProperty = reqProperty;
+            properties.save(dbProperty);
             status = HttpStatus.CREATED;
         }
-        return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(target, CrudServiceUtils.getBaseUrl(request)), status);
+        return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(dbProperty, CrudServiceUtils.getBaseUrl(request)), status);
     }
 }

@@ -22,4 +22,5 @@ import reconf.server.domain.*;
 public interface ComponentRepository extends CrudRepository<Component, ComponentKey> {
 
     List<Component> deleteByKeyProduct(String product);
+    List<Component> findByKeyProductOrderByKeyNameAsc(String product);
 }
