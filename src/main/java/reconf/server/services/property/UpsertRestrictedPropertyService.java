@@ -46,7 +46,6 @@ public class UpsertRestrictedPropertyService {
             @RequestParam(value="rexpr", required=false) String ruleRegexp,
             HttpServletRequest request) {
 
-        //FIXME without a global property, it's not possible to insert a ruled property
         //FIXME it's not possible to override the global property
 
         PropertyKey key = new PropertyKey(product, component, property, ruleName);
@@ -61,6 +60,11 @@ public class UpsertRestrictedPropertyService {
         }
         if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
             return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        PropertyKey globalKey = new PropertyKey(product, component, property);
+        if (!properties.exists(globalKey)) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Property.GLOBAL_NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
         HttpStatus status = null;

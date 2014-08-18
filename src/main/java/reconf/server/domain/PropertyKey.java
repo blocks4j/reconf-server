@@ -38,7 +38,6 @@ public class PropertyKey implements Serializable {
         this(product, component, name, Property.DEFAULT_RULE_NAME);
     }
 
-
     public PropertyKey(String product, String component, String name, String ruleName) {
         setProduct(product);
         setComponent(component);

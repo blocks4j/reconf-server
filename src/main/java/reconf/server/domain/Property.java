@@ -26,6 +26,7 @@ import org.hibernate.validator.constraints.*;
 @Table(name="reconf_property_v1")
 public class Property implements Serializable {
 
+    public static final List<String> GLOBAL_NOT_FOUND = Collections.singletonList("global property not found");
     public static final String NAME_MESSAGE = "property name must match [a-zA-Z_0-9]{3,256}";
     public static final String VALUE_MESSAGE = "property value must not be empty";
     public static final String DESC_MESSAGE = "property desc must be a valid string with a maximum size of 4096 characters";
