@@ -53,6 +53,10 @@
         <appender-ref ref="A1" />
     </logger>
 
+    <logger name="org.springframework.security" additivity="false" level="DEBUG">
+        <appender-ref ref="A1" />
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="A1" />
     </root>
