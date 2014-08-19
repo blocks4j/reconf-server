@@ -43,7 +43,7 @@ public class AllPropertiesResult {
         this.component = key.getName();
         this.errors = errors;
     }
-
+    
     private String getUri() {
         return "/product/" + product + "/component/" + component + "/property";
     }

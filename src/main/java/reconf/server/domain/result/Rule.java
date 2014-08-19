@@ -15,6 +15,8 @@
  */
 package reconf.server.domain.result;
 
+import java.net.*;
+import java.util.*;
 import reconf.server.domain.*;
 
 public class Rule {
@@ -22,6 +24,7 @@ public class Rule {
     private String name;
     private String expr;
     private Integer priority;
+    private List<Link> links;
 
     public Rule(Property arg) {
         this.name = arg.getKey().getRuleName();
@@ -39,5 +42,16 @@ public class Rule {
 
     public Integer getPriority() {
         return priority;
+    }
+
+    public void addLink(URI href, String rel) {
+        if (links == null) {
+            this.links = new ArrayList<>();
+        }
+        links.add(new Link(href, rel));
+    }
+
+    public List<Link> getLinks() {
+        return links;
     }
 }

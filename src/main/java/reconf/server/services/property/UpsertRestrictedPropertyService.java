@@ -17,6 +17,7 @@ package reconf.server.services.property;
 
 import java.util.*;
 import javax.servlet.http.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.*;
@@ -46,25 +47,12 @@ public class UpsertRestrictedPropertyService {
             @RequestParam(value="rexpr", required=false) String ruleRegexp,
             HttpServletRequest request) {
 
-        //FIXME it's not possible to override the global property
-
         PropertyKey key = new PropertyKey(product, component, property, ruleName);
         Property reqProperty = new Property(key, value, description, rulePriority, ruleRegexp);
-        List<String> errors = DomainValidator.checkForErrors(reqProperty);
 
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, errors), HttpStatus.BAD_REQUEST);
-        }
-        if (!products.exists(key.getProduct())) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
-        }
-        if (!components.exists(new ComponentKey(key.getProduct(), key.getComponent()))) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
-        }
-
-        PropertyKey globalKey = new PropertyKey(product, component, property);
-        if (!properties.exists(globalKey)) {
-            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Property.GLOBAL_NOT_FOUND), HttpStatus.NOT_FOUND);
+        ResponseEntity<PropertyRuleResult> errorResponse = checkForErrors(reqProperty);
+        if (errorResponse != null) {
+            return errorResponse;
         }
 
         HttpStatus status = null;
@@ -80,5 +68,30 @@ public class UpsertRestrictedPropertyService {
             status = HttpStatus.CREATED;
         }
         return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(dbProperty, CrudServiceUtils.getBaseUrl(request)), status);
+    }
+
+    private ResponseEntity<PropertyRuleResult> checkForErrors(Property reqProperty) {
+        List<String> errors = DomainValidator.checkForErrors(reqProperty);
+
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, errors), HttpStatus.BAD_REQUEST);
+        }
+        if (!products.exists(reqProperty.getKey().getProduct())) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        if (!components.exists(new ComponentKey(reqProperty.getKey().getProduct(), reqProperty.getKey().getComponent()))) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Component.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        PropertyKey globalKey = new PropertyKey(reqProperty.getKey().getProduct(), reqProperty.getKey().getComponent(), reqProperty.getKey().getName());
+        if (!properties.exists(globalKey)) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Property.GLOBAL_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        if (StringUtils.equalsIgnoreCase(reqProperty.getKey().getRuleName(), Property.DEFAULT_RULE_NAME)) {
+            return new ResponseEntity<PropertyRuleResult>(new PropertyRuleResult(reqProperty, Property.GLOBAL_UPDATE), HttpStatus.BAD_REQUEST);
+        }
+
+        return null;
     }
 }
