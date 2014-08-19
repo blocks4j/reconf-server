@@ -52,16 +52,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         createTableUsers();
         createTableAuthorities();
 
-        auth.jdbcAuthentication()
-            .dataSource(dataSource)
-            .usersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?")
-            .authoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
-
-        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
-        userDetailsManager.setDataSource(dataSource);
-        userDetailsManager.setUsersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?");
-        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
-        userDetailsManager.setRolePrefix("ROLE_");
+        JdbcUserDetailsManager userDetailsManager = getJdbcUserDetailsManager(dataSource);
 
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(dataSource);
@@ -71,7 +62,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_ROOT"));
+        authorities.add(new SimpleGrantedAuthority("ROOT"));
         User user = new User(SERVER_ROOT_USER, rootUserPassword, authorities);
         userDetailsManager.createUser(user);
     }
@@ -84,6 +75,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         execute("create table authorities ( username varchar(50) not null, authority varchar(50) not null, foreign key (username) references users (username) )");
     }
 
+    //http://docs.spring.io/spring-security/site/docs/3.0.x/reference/appendix-schema.html
     private void execute(String sql) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -103,5 +95,14 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 conn.close();
             } catch (Exception ignored2) { }
         }
+    }
+
+    public static JdbcUserDetailsManager getJdbcUserDetailsManager(DataSource dataSource) {
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
+        userDetailsManager.setDataSource(dataSource);
+        userDetailsManager.setUsersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?");
+        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
+        userDetailsManager.setRolePrefix("ROLE_");
+        return userDetailsManager;
     }
 }
