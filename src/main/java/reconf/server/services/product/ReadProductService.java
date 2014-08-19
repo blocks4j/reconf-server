@@ -19,6 +19,7 @@ import java.util.*;
 import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
@@ -35,7 +36,8 @@ public class ReadProductService {
     @Transactional(readOnly=true)
     public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            Authentication auth) {
 
         Product reqProduct = new Product(product, null);
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
@@ -43,7 +45,8 @@ public class ReadProductService {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
-        //TODO read associated users
+        //TODO if root, all users
+        //TODO if not, only the current user
 
         Product dbProduct = products.findOne(reqProduct.getName());
         if (dbProduct == null) {

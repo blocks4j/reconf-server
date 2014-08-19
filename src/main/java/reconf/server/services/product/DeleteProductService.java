@@ -16,10 +16,13 @@
 package reconf.server.services.product;
 
 import java.util.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
@@ -34,10 +37,13 @@ public class DeleteProductService {
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.DELETE)
     @Transactional
-    public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product) {
+    public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product, Authentication auth) {
 
         Product reqProduct = new Product(product, null);
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
+        if (!StringUtils.equalsIgnoreCase(ReConfServerApplication.SERVER_ROOT_USER, auth.getName())) {
+            errors.add(Product.ROOT_MESSAGE);
+        }
         if (!errors.isEmpty()) {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }

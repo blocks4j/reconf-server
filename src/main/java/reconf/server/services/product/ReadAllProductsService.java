@@ -19,6 +19,7 @@ import java.util.*;
 import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
@@ -33,10 +34,13 @@ public class ReadAllProductsService {
 
     @RequestMapping(value="/product", method=RequestMethod.GET)
     @Transactional(readOnly=true)
-    public ResponseEntity<AllProductsResult> doIt(HttpServletRequest request) {
+    public ResponseEntity<AllProductsResult> doIt(HttpServletRequest request, Authentication auth) {
 
         String baseUrl = CrudServiceUtils.getBaseUrl(request);
         List<ProductResult> result = new ArrayList<>();
+
+        //TODO read associated users
+        //TODO if root, everything. if not, only the products associated with the current user
 
         for (Product product : products.findAll()) {
             result.add(new ProductResult(product, baseUrl));
