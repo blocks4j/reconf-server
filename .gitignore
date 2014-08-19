@@ -4,3 +4,7 @@
 /database/
 /target/
 /bin/
+
+database.lck
+database.properties
+database.script

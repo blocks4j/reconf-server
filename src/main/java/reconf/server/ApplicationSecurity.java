@@ -15,21 +15,29 @@
  */
 package reconf.server;
 
+import java.sql.*;
+import java.util.*;
 import javax.sql.*;
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.config.http.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.authority.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.provisioning.*;
 
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
-    @Autowired DataSource dataSource;
+    private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
+    private static final String SERVER_ROOT_USER = "reconf";
 
-    @Value("${reconf.user.name}") String rootUserName;
+    @Autowired DataSource dataSource;
     @Value("${reconf.user.password}") String rootUserPassword;
 
     @Override
@@ -41,10 +49,59 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        createTableUsers();
+        createTableAuthorities();
+
         auth.jdbcAuthentication()
             .dataSource(dataSource)
             .usersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?")
-            .authoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?")
-            .withUser(rootUserName).password(rootUserPassword).roles("ROOT");
+            .authoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
+
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
+        userDetailsManager.setDataSource(dataSource);
+        userDetailsManager.setUsersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?");
+        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
+        userDetailsManager.setRolePrefix("ROLE_");
+
+        auth.userDetailsService(userDetailsManager);
+        auth.jdbcAuthentication().dataSource(dataSource);
+
+        if (userDetailsManager.userExists(SERVER_ROOT_USER)) {
+            userDetailsManager.deleteUser(SERVER_ROOT_USER);
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_ROOT"));
+        User user = new User(SERVER_ROOT_USER, rootUserPassword, authorities);
+        userDetailsManager.createUser(user);
+    }
+
+    private void createTableUsers() {
+        execute("create table users ( username varchar(50) not null primary key, password varchar(255) not null, enabled boolean not null)");
+    }
+
+    private void createTableAuthorities() {
+        execute("create table authorities ( username varchar(50) not null, authority varchar(50) not null, foreign key (username) references users (username) )");
+    }
+
+    private void execute(String sql) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = dataSource.getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.execute();
+
+        } catch (Exception e) {
+            log.warn("error creating spring-security tables", e);
+
+        } finally {
+            try {
+                stmt.close();
+            } catch (Exception ignored1) { }
+            try {
+                conn.close();
+            } catch (Exception ignored2) { }
+        }
     }
 }
