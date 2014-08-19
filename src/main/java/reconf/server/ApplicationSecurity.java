@@ -32,6 +32,7 @@ import org.springframework.security.provisioning.*;
 
 @Configuration
 @EnableWebSecurity
+// http://justinrodenbostel.com/2014/05/30/part-5-integrating-spring-security-with-spring-boot-web/
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
@@ -45,6 +46,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers("/crud/**").hasRole("ROOT").and().httpBasic();
+        http.authorizeRequests().antMatchers("/security/user").hasRole("ROOT").and().httpBasic();
     }
 
     @Autowired
