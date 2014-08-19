@@ -17,12 +17,19 @@ package reconf.server.services.product;
 
 import java.util.*;
 import javax.servlet.http.*;
+import javax.sql.*;
+import org.apache.commons.collections4.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
+import org.springframework.security.provisioning.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
+import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
@@ -30,23 +37,28 @@ import reconf.server.services.*;
 public class UpsertProductService {
 
     @Autowired ProductRepository products;
+    @Autowired DataSource dataSource;
+    @Autowired UserProductRepository userProducts;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional
     public ResponseEntity<ProductResult> doIt(
             @PathVariable("prod") String product,
+            @RequestParam(value="user", required=false) List<String> users,
             @RequestParam(value="desc", required=false) String description,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            Authentication auth) {
 
         Product reqProduct = new Product(product, description);
-        List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
+        ResponseEntity<ProductResult> errorResponse = checkForErrors(auth, reqProduct, users);
+        if (errorResponse != null) {
+            return errorResponse;
         }
 
         HttpStatus status = null;
         Product dbProduct = products.findOne(reqProduct.getName());
         if (dbProduct != null) {
+            userProducts.deleteByKeyProduct(reqProduct.getName());
             dbProduct.setDescription(description);
             status = HttpStatus.OK;
 
@@ -56,6 +68,35 @@ public class UpsertProductService {
             products.save(dbProduct);
             status = HttpStatus.CREATED;
         }
+
+        dbProduct.setUsers(users);
+        users = CollectionUtils.isEmpty(users) ? Collections.EMPTY_LIST : users;
+        for (String user : users) {
+            if (StringUtils.equals(user, ReConfServerApplication.SERVER_ROOT_USER)) {
+                continue;
+            }
+            userProducts.save(new UserProduct(new UserProductKey(user, reqProduct.getName())));
+        }
         return new ResponseEntity<ProductResult>(new ProductResult(dbProduct, CrudServiceUtils.getBaseUrl(request)), status);
+    }
+
+    private ResponseEntity<ProductResult> checkForErrors(Authentication auth, Product reqProduct, List<String> users) {
+        List<String> errors = DomainValidator.checkForErrors(reqProduct);
+        if (!StringUtils.equalsIgnoreCase(ReConfServerApplication.SERVER_ROOT_USER, auth.getName())) {
+            errors.add(Product.ROOT_MESSAGE);
+        }
+
+        if (CollectionUtils.isNotEmpty(users)) {
+            JdbcUserDetailsManager userDetailsManager = ApplicationSecurity.getJdbcUserDetailsManager(dataSource);
+            for (String user : users) {
+                if (!userDetailsManager.userExists(user)) {
+                    errors.add("user " + user + " does not exist");
+                }
+            }
+        }
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 }

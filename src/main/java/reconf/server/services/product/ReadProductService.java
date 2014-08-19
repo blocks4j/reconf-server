@@ -43,6 +43,8 @@ public class ReadProductService {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
+        //TODO read associated users
+
         Product dbProduct = products.findOne(reqProduct.getName());
         if (dbProduct == null) {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, Product.NOT_FOUND), HttpStatus.NOT_FOUND);

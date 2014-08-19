@@ -36,7 +36,6 @@ import org.springframework.security.provisioning.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
-    private static final String SERVER_ROOT_USER = "reconf";
 
     @Autowired DataSource dataSource;
     @Value("${reconf.user.password}") String rootUserPassword;
@@ -45,7 +44,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/crud/**").hasRole("ROOT").and().httpBasic();
+        http.authorizeRequests().antMatchers("/crud/**").hasRole("USER").and().httpBasic();
         http.authorizeRequests().antMatchers("/security/user").hasRole("ROOT").and().httpBasic();
     }
 
@@ -59,13 +58,14 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(dataSource);
 
-        if (userDetailsManager.userExists(SERVER_ROOT_USER)) {
-            userDetailsManager.deleteUser(SERVER_ROOT_USER);
+        if (userDetailsManager.userExists(ReConfServerApplication.SERVER_ROOT_USER)) {
+            userDetailsManager.deleteUser(ReConfServerApplication.SERVER_ROOT_USER);
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROOT"));
-        User user = new User(SERVER_ROOT_USER, rootUserPassword, authorities);
+        authorities.add(new SimpleGrantedAuthority("USER"));
+        User user = new User(ReConfServerApplication.SERVER_ROOT_USER, rootUserPassword, authorities);
         userDetailsManager.createUser(user);
     }
 

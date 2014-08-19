@@ -27,6 +27,7 @@ public class ReConfServerApplication {
 
     public static final String CRUD_ROOT = "/crud";
     public static final String SECURITY_ROOT = "/security";
+    public static final String SERVER_ROOT_USER = "reconf";
 
     public static void main(String[] args) {
         new SpringApplicationBuilder()

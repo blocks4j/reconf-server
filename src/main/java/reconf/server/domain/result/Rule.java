@@ -18,7 +18,10 @@ package reconf.server.domain.result;
 import java.net.*;
 import java.util.*;
 import reconf.server.domain.*;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@JsonInclude(Include.NON_NULL)
 public class Rule {
 
     private String name;

@@ -26,10 +26,12 @@ import org.hibernate.validator.constraints.*;
 @Table(name="reconf_product_v1")
 public class Product {
 
+    public static final String ROOT_MESSAGE = "reconf user required";
     public static final String NAME_MESSAGE = "product must match [a-zA-Z_0-9]{3,256}";
     public static final List<String> NOT_FOUND = Collections.singletonList("product not found");
     private String name;
     private String description;
+    private List<String> users;
 
     public Product() { }
 
@@ -60,6 +62,14 @@ public class Product {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Transient
+    public List<String> getUsers() {
+        return users;
+    }
+    public void setUsers(List<String> users) {
+        this.users = users;
     }
 
     @Override

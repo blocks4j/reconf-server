@@ -26,12 +26,14 @@ public class ProductResult {
 
     private String product;
     private String desc;
+    private List<String> users;
     private List<Link> links;
     private List<String> errors;
 
     private ProductResult(Product arg) {
         this.product = arg.getName();
         this.desc = arg.getDescription();
+        this.users = arg.getUsers();
     }
 
     public ProductResult(Product arg, String baseURL) {
@@ -55,6 +57,10 @@ public class ProductResult {
 
     public String getDesc() {
         return desc;
+    }
+
+    public List<String> getUsers() {
+        return users;
     }
 
     public List<Link> getLinks() {

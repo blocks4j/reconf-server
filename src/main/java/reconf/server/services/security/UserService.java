@@ -15,11 +15,19 @@
  */
 package reconf.server.services.security;
 
+import java.util.*;
 import javax.sql.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.authority.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.provisioning.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
+import reconf.server.domain.*;
+import reconf.server.domain.security.*;
 
 @RestController
 @RequestMapping(value=ReConfServerApplication.SECURITY_ROOT,
@@ -29,9 +37,29 @@ public class UserService {
 
     @Autowired DataSource dataSource;
 
-    @RequestMapping(value="/user/", method=RequestMethod.PUT)
+    @RequestMapping(value="/user", method=RequestMethod.PUT)
     @Transactional
-    public void doIt(@RequestBody String body) {
-        //TODO!
+    public ResponseEntity<Client> doIt(@RequestBody Client client) {
+
+        List<String> errors = DomainValidator.checkForErrors(client);
+        if (!errors.isEmpty()) {
+            return new ResponseEntity<Client>(new Client(client, errors), HttpStatus.BAD_REQUEST);
+        }
+
+        JdbcUserDetailsManager userDetailsManager = ApplicationSecurity.getJdbcUserDetailsManager(dataSource);
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("USER"));
+
+        HttpStatus status = null;
+        User user = new User(client.getUsername(), client.getPassword(), authorities);
+        if (userDetailsManager.userExists(client.getUsername())) {
+            userDetailsManager.updateUser(user);
+            status = HttpStatus.OK;
+        } else {
+            userDetailsManager.createUser(user);
+            status = HttpStatus.CREATED;
+        }
+
+        return new ResponseEntity<Client>(new Client(client), status);
     }
 }
