@@ -15,11 +15,12 @@
  */
 package reconf.server;
 
-import java.sql.*;
 import java.util.*;
-import org.slf4j.*;
+import org.flywaydb.core.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
+import org.springframework.core.*;
+import org.springframework.core.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
@@ -31,10 +32,10 @@ import org.springframework.security.provisioning.*;
 
 @Configuration
 @EnableWebSecurity
+@Order(Ordered.LOWEST_PRECEDENCE - 1000)
 // http://justinrodenbostel.com/2014/05/30/part-5-integrating-spring-security-with-spring-boot-web/
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
     public static final String SERVER_ROOT_USER = "reconf";
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
@@ -50,8 +51,9 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        createTableUsers();
-        createTableAuthorities();
+        //createTableUsers();
+        //createTableAuthorities();
+        setUpDB();
 
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(userDetailsManager.getDataSource());
@@ -67,43 +69,23 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         userDetailsManager.createUser(user);
     }
 
-    private void createTableUsers() {
-        boolean ok = execute("select 1 from users");
-        if (!ok) {
-            log.info("creating table users");
-            execute("create table users ( username varchar(50) not null primary key, password varchar(255) not null, enabled boolean not null)");
-        }
-    }
-
-    private void createTableAuthorities() {
-        boolean ok = execute("select 1 from authorities");
-        if (!ok) {
-            log.info("creating table authorities");
-            execute("create table authorities ( username varchar(50) not null, authority varchar(50) not null, foreign key (username) references users (username) )");
-        }
-    }
-
-    //http://docs.spring.io/spring-security/site/docs/3.0.x/reference/appendix-schema.html
-    private boolean execute(String sql) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
+    /**
+     * Flyway must be called manually
+     * SpringSecurity starts BEFORE Flyway
+     * This causes errors during because SpringSecurity tables are created after SpringSecurity startup
+     */
+    public void setUpDB() {
         try {
-            conn = userDetailsManager.getDataSource().getConnection();
-            stmt = conn.prepareStatement(sql);
-            stmt.execute();
-            return true;
-
+            Flyway flyway = new Flyway();
+            flyway.setInitOnMigrate(true);
+            flyway.setSqlMigrationPrefix("V");
+            flyway.setSqlMigrationSuffix(".sql");
+            flyway.setInitVersion("1");
+            flyway.setLocations("./");
+            flyway.setDataSource(userDetailsManager.getDataSource());
+            flyway.migrate();
         } catch (Exception e) {
-            log.warn("error executing sql statement", e);
-            return false;
-
-        } finally {
-            try {
-                stmt.close();
-            } catch (Exception ignored1) { }
-            try {
-                conn.close();
-            } catch (Exception ignored2) { }
+            throw new Error(e);
         }
     }
 }
