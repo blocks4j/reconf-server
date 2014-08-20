@@ -3,10 +3,6 @@ reconf-server
 
 Home of the ReConf Server Project
 
-### TODO!
-* http://massimilianosciacco.com/implementing-hmac-authentication-rest-api-spring-security
-* https://github.com/ryantenney/spring-rest-hmac
-
 # License
 
  Copyright 2013-2014 ReConf Team
