@@ -16,11 +16,8 @@
 package reconf.server;
 
 import java.util.*;
-import org.flywaydb.core.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
-import org.springframework.core.*;
-import org.springframework.core.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
@@ -32,14 +29,12 @@ import org.springframework.security.provisioning.*;
 
 @Configuration
 @EnableWebSecurity
-@Order(Ordered.LOWEST_PRECEDENCE - 1000)
 // http://justinrodenbostel.com/2014/05/30/part-5-integrating-spring-security-with-spring-boot-web/
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
-    public static final String SERVER_ROOT_USER = "reconf";
-
     @Autowired JdbcUserDetailsManager userDetailsManager;
     @Autowired @Qualifier("rootUserPassword") String rootUserPassword;
+    private final FlywayService flywayService = new FlywayService();
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -51,41 +46,19 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        //createTableUsers();
-        //createTableAuthorities();
-        setUpDB();
+        flywayService.setUpDB(userDetailsManager.getDataSource());//SpringBoot bug
 
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(userDetailsManager.getDataSource());
 
-        if (userDetailsManager.userExists(SERVER_ROOT_USER)) {
-            userDetailsManager.deleteUser(SERVER_ROOT_USER);
+        if (userDetailsManager.userExists(ReConfConstants.SERVER_ROOT_USER)) {
+            userDetailsManager.deleteUser(ReConfConstants.SERVER_ROOT_USER);
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROOT"));
         authorities.add(new SimpleGrantedAuthority("USER"));
-        User user = new User(SERVER_ROOT_USER, rootUserPassword, authorities);
+        User user = new User(ReConfConstants.SERVER_ROOT_USER, rootUserPassword, authorities);
         userDetailsManager.createUser(user);
-    }
-
-    /**
-     * Flyway must be called manually
-     * SpringSecurity starts BEFORE Flyway
-     * This causes errors during because SpringSecurity tables are created after SpringSecurity startup
-     */
-    public void setUpDB() {
-        try {
-            Flyway flyway = new Flyway();
-            flyway.setInitOnMigrate(true);
-            flyway.setSqlMigrationPrefix("V");
-            flyway.setSqlMigrationSuffix(".sql");
-            flyway.setInitVersion("1");
-            flyway.setLocations("./");
-            flyway.setDataSource(userDetailsManager.getDataSource());
-            flyway.migrate();
-        } catch (Exception e) {
-            throw new Error(e);
-        }
     }
 }

@@ -42,10 +42,10 @@ public class AuthorizationService {
     }
 
     public boolean isRoot(Authentication auth) {
-        return auth != null && StringUtils.equals(auth.getName(), ApplicationSecurity.SERVER_ROOT_USER);
+        return auth != null && StringUtils.equals(auth.getName(), ReConfConstants.SERVER_ROOT_USER);
     }
 
     public boolean isRoot(String user) {
-        return StringUtils.equals(user, ApplicationSecurity.SERVER_ROOT_USER);
+        return StringUtils.equals(user, ReConfConstants.SERVER_ROOT_USER);
     }
 }
