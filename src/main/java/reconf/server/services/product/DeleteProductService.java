@@ -21,11 +21,11 @@ import org.springframework.http.*;
 import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class DeleteProductService {
@@ -34,16 +34,19 @@ public class DeleteProductService {
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
     @Autowired UserProductRepository userProducts;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.DELETE)
     @Transactional
     public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product, Authentication auth) {
 
+        if (!authService.isRoot(auth)) {
+            return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
+        }
+
         Product reqProduct = new Product(product, null);
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!ApplicationSecurity.isRoot(auth)) {
-            errors.add(Product.ROOT_MESSAGE);
-        }
+
         if (!errors.isEmpty()) {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }

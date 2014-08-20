@@ -23,26 +23,31 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 import static reconf.server.domain.fixture.RestDataFixture.*;
 import org.junit.*;
 import org.mockito.*;
+import org.springframework.security.core.*;
 import org.springframework.test.web.servlet.*;
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.repository.*;
+import reconf.server.services.security.*;
 
 public class DeletePropertyServiceTest {
 
     MockMvc mockMvc;
 
     @InjectMocks
-    DeletePropertyService service;
+    DeletePropertyService deleteProperty;
 
     @Mock
     PropertyRepository repository;
 
+    @Mock
+    AuthorizationService authorization;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-
-        this.mockMvc = standaloneSetup(service).build();
+        this.mockMvc = standaloneSetup(deleteProperty, authorization).build();
+        when(authorization.isAuthorized(Mockito.any(Authentication.class), Mockito.anyString())).thenReturn(true);
     }
 
     @Test

@@ -19,18 +19,21 @@ import java.util.*;
 import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class UpsertComponentService {
 
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.PUT)
     @Transactional
@@ -38,10 +41,16 @@ public class UpsertComponentService {
             @PathVariable("prod") String productId,
             @PathVariable("comp") String componentId,
             @RequestParam(value="desc", required=false) String description,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            Authentication auth) {
 
         ComponentKey key = new ComponentKey(productId, componentId);
         Component reqComponent = new Component(key, description);
+
+        if (!authService.isAuthorized(auth, key.getProduct())) {
+            return new ResponseEntity<ComponentResult>(HttpStatus.FORBIDDEN);
+        }
+
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {
             return new ResponseEntity<ComponentResult>(new ComponentResult(reqComponent, errors), HttpStatus.BAD_REQUEST);

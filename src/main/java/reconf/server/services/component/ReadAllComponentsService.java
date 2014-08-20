@@ -19,25 +19,33 @@ import java.util.*;
 import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class ReadAllComponentsService {
 
     @Autowired ComponentRepository components;
     @Autowired ProductRepository products;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component", method=RequestMethod.GET)
     @Transactional(readOnly=true)
     public ResponseEntity<AllComponentsResult> doIt(@PathVariable("prod") String productId,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            Authentication auth) {
 
         Product fromRequest = new Product(productId);
+        if (!authService.isAuthorized(auth, fromRequest.getName())) {
+            return new ResponseEntity<AllComponentsResult>(HttpStatus.FORBIDDEN);
+        }
+
         List<String> errors = DomainValidator.checkForErrors(fromRequest);
         if (!errors.isEmpty()) {
             return new ResponseEntity<AllComponentsResult>(new AllComponentsResult(productId, errors), HttpStatus.BAD_REQUEST);

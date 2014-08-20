@@ -22,15 +22,14 @@ import org.apache.commons.collections4.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
-import org.springframework.security.provisioning.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
-import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class UpsertProductService {
@@ -38,7 +37,7 @@ public class UpsertProductService {
     @Autowired ProductRepository products;
     @Autowired DataSource dataSource;
     @Autowired UserProductRepository userProducts;
-    @Autowired JdbcUserDetailsManager userDetailsManager;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional
@@ -48,6 +47,10 @@ public class UpsertProductService {
             @RequestParam(value="desc", required=false) String description,
             HttpServletRequest request,
             Authentication auth) {
+
+        if (!authService.isRoot(auth)) {
+            return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
+        }
 
         Product reqProduct = new Product(product, description);
         ResponseEntity<ProductResult> errorResponse = checkForErrors(auth, reqProduct, users);
@@ -72,7 +75,7 @@ public class UpsertProductService {
         dbProduct.setUsers(users);
         users = CollectionUtils.isEmpty(users) ? Collections.EMPTY_LIST : users;
         for (String user : users) {
-            if (ApplicationSecurity.isRoot(user)) {
+            if (authService.isRoot(user)) {
                 continue;
             }
             userProducts.save(new UserProduct(new UserProductKey(user, reqProduct.getName())));
@@ -82,13 +85,13 @@ public class UpsertProductService {
 
     private ResponseEntity<ProductResult> checkForErrors(Authentication auth, Product reqProduct, List<String> users) {
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!ApplicationSecurity.isRoot(auth)) {
+        if (!authService.isRoot(auth)) {
             errors.add(Product.ROOT_MESSAGE);
         }
 
         if (CollectionUtils.isNotEmpty(users)) {
             for (String user : users) {
-                if (!userDetailsManager.userExists(user)) {
+                if (!authService.userExists(user)) {
                     errors.add("user " + user + " does not exist");
                 }
             }

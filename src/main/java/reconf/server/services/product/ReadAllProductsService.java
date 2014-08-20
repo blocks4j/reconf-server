@@ -24,13 +24,17 @@ import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
+import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class ReadAllProductsService {
 
     @Autowired ProductRepository products;
+    @Autowired UserProductRepository userProducts;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -39,11 +43,14 @@ public class ReadAllProductsService {
         String baseUrl = CrudServiceUtils.getBaseUrl(request);
         List<ProductResult> result = new ArrayList<>();
 
-        //TODO read associated users
-        //TODO if root, everything. if not, only the products associated with the current user
-
-        for (Product product : products.findAll()) {
-            result.add(new ProductResult(product, baseUrl));
+        if (authService.isRoot(auth)) {
+            for (Product product : products.findAll()) {
+                result.add(new ProductResult(product, baseUrl));
+            }
+        } else {
+            for(UserProduct userProduct : userProducts.findByKeyUsername(auth.getName())) {
+                result.add(new ProductResult(products.findOne(userProduct.getKey().getProduct()), baseUrl));
+            }
         }
 
         return new ResponseEntity<AllProductsResult>(new AllProductsResult(result, baseUrl), HttpStatus.OK);

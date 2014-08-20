@@ -71,6 +71,12 @@ public class Product {
     public void setUsers(List<String> users) {
         this.users = users;
     }
+    public void addUser(String user) {
+        if (this.users == null) {
+            this.users = new ArrayList<>();
+        }
+        this.users.add(user);
+    }
 
     @Override
     public int hashCode() {

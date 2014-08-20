@@ -48,10 +48,10 @@ public class Client {
     @Size(min=3, max=50, message=Client.NAME_MESSAGE)
     @Pattern(regexp="\\w*", message=Client.NAME_MESSAGE)
     public String getUsername() {
-        return username;
+        return StringUtils.lowerCase(username);
     }
     public void setUsername(String username) {
-        this.username = username;
+        this.username = StringUtils.lowerCase(username);
     }
 
     @NotBlank(message=Client.PASS_MESSAGE)

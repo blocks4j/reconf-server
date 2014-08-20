@@ -18,27 +18,35 @@ package reconf.server.services.property;
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class DeletePropertyService {
 
     @Autowired PropertyRepository properties;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}", method=RequestMethod.DELETE)
     @Transactional
     public ResponseEntity<PropertyResult> global(
             @PathVariable("prod") String product,
             @PathVariable("comp") String component,
-            @PathVariable("prop") String property) {
+            @PathVariable("prop") String property,
+            Authentication auth) {
 
         PropertyKey key = new PropertyKey(product, component, property);
         Property reqProperty = new Property(key, null);
+
+        if (!authService.isAuthorized(auth, key.getProduct())) {
+            return new ResponseEntity<PropertyResult>(HttpStatus.FORBIDDEN);
+        }
 
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {

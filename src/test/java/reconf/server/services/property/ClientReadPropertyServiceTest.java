@@ -30,7 +30,7 @@ import reconf.server.domain.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-public class ReadPropertyServiceTest {
+public class ClientReadPropertyServiceTest {
 
     MockMvc mockMvc;
 

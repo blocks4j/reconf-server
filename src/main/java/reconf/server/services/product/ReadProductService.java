@@ -24,13 +24,17 @@ import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
+import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
+import reconf.server.services.security.*;
 
 @CrudService
 public class ReadProductService {
 
     @Autowired ProductRepository products;
+    @Autowired UserProductRepository userProducts;
+    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -40,17 +44,26 @@ public class ReadProductService {
             Authentication auth) {
 
         Product reqProduct = new Product(product, null);
+        if (!authService.isAuthorized(auth, reqProduct.getName())) {
+            return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
+        }
+
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
         if (!errors.isEmpty()) {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, errors), HttpStatus.BAD_REQUEST);
         }
 
-        //TODO if root, all users
-        //TODO if not, only the current user
-
         Product dbProduct = products.findOne(reqProduct.getName());
         if (dbProduct == null) {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        if (authService.isRoot(auth)) {
+            for (UserProduct userProduct : userProducts.findByKeyProduct(reqProduct.getName())) {
+                dbProduct.addUser(userProduct.getKey().getUsername());
+            }
+        } else {
+            dbProduct.addUser(auth.getName());
         }
 
         return new ResponseEntity<ProductResult>(new ProductResult(dbProduct, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);

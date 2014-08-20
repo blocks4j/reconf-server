@@ -17,7 +17,6 @@ package reconf.server;
 
 import java.sql.*;
 import java.util.*;
-import org.apache.commons.lang3.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
@@ -36,7 +35,7 @@ import org.springframework.security.provisioning.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
-    private static final String SERVER_ROOT_USER = "reconf";
+    public static final String SERVER_ROOT_USER = "reconf";
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
     @Autowired @Qualifier("rootUserPassword") String rootUserPassword;
@@ -106,13 +105,5 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 conn.close();
             } catch (Exception ignored2) { }
         }
-    }
-
-    public static boolean isRoot(Authentication auth) {
-        return auth != null && StringUtils.equals(auth.getName(), SERVER_ROOT_USER);
-    }
-
-    public static boolean isRoot(String user) {
-        return StringUtils.equals(user, SERVER_ROOT_USER);
     }
 }

@@ -15,10 +15,13 @@
  */
 package reconf.server.repository;
 
+import java.util.*;
 import org.springframework.data.repository.*;
 import reconf.server.domain.security.*;
 
 public interface UserProductRepository extends CrudRepository<UserProduct, UserProductKey> {
 
     void deleteByKeyProduct(String product);
+    List<UserProduct> findByKeyProduct(String product);
+    List<UserProduct> findByKeyUsername(String username);
 }
