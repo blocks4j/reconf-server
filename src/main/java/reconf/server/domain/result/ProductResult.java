@@ -62,6 +62,12 @@ public class ProductResult {
     public List<String> getUsers() {
         return users;
     }
+    public void addUser(String user) {
+        if (this.users == null) {
+            this.users = new ArrayList<>();
+        }
+        this.users.add(user);
+    }
 
     public List<Link> getLinks() {
         return links;

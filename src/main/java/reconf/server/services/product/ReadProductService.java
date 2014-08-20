@@ -62,8 +62,6 @@ public class ReadProductService {
             for (UserProduct userProduct : userProducts.findByKeyProduct(reqProduct.getName())) {
                 dbProduct.addUser(userProduct.getKey().getUsername());
             }
-        } else {
-            dbProduct.addUser(auth.getName());
         }
 
         return new ResponseEntity<ProductResult>(new ProductResult(dbProduct, CrudServiceUtils.getBaseUrl(request)), HttpStatus.OK);

@@ -45,7 +45,11 @@ public class ReadAllProductsService {
 
         if (authService.isRoot(auth)) {
             for (Product product : products.findAll()) {
-                result.add(new ProductResult(product, baseUrl));
+                ProductResult productResult = new ProductResult(product, baseUrl);
+                for (UserProduct userProduct : userProducts.findByKeyProduct(product.getName())) {
+                    productResult.addUser(userProduct.getKey().getUsername());
+                    result.add(productResult);
+                }
             }
         } else {
             for(UserProduct userProduct : userProducts.findByKeyUsername(auth.getName())) {
