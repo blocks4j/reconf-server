@@ -31,8 +31,6 @@ public class SecurityConfiguration {
     public JdbcUserDetailsManager getJdbcUserDetailsManager() {
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
         userDetailsManager.setDataSource(dataSource);
-        userDetailsManager.setUsersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?");
-        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
         userDetailsManager.setRolePrefix("ROLE_");
         return userDetailsManager;
     }
