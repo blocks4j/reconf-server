@@ -19,7 +19,6 @@ import java.util.*;
 import javax.servlet.http.*;
 import javax.sql.*;
 import org.apache.commons.collections4.*;
-import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
@@ -39,6 +38,7 @@ public class UpsertProductService {
     @Autowired ProductRepository products;
     @Autowired DataSource dataSource;
     @Autowired UserProductRepository userProducts;
+    @Autowired JdbcUserDetailsManager userDetailsManager;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional
@@ -72,7 +72,7 @@ public class UpsertProductService {
         dbProduct.setUsers(users);
         users = CollectionUtils.isEmpty(users) ? Collections.EMPTY_LIST : users;
         for (String user : users) {
-            if (StringUtils.equals(user, ReConfServerApplication.SERVER_ROOT_USER)) {
+            if (ApplicationSecurity.isRoot(user)) {
                 continue;
             }
             userProducts.save(new UserProduct(new UserProductKey(user, reqProduct.getName())));
@@ -82,12 +82,11 @@ public class UpsertProductService {
 
     private ResponseEntity<ProductResult> checkForErrors(Authentication auth, Product reqProduct, List<String> users) {
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!StringUtils.equalsIgnoreCase(ReConfServerApplication.SERVER_ROOT_USER, auth.getName())) {
+        if (!ApplicationSecurity.isRoot(auth)) {
             errors.add(Product.ROOT_MESSAGE);
         }
 
         if (CollectionUtils.isNotEmpty(users)) {
-            JdbcUserDetailsManager userDetailsManager = ApplicationSecurity.getJdbcUserDetailsManager(dataSource);
             for (String user : users) {
                 if (!userDetailsManager.userExists(user)) {
                     errors.add("user " + user + " does not exist");

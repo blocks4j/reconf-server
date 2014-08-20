@@ -17,7 +17,7 @@ package reconf.server;
 
 import java.sql.*;
 import java.util.*;
-import javax.sql.*;
+import org.apache.commons.lang3.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
@@ -36,16 +36,17 @@ import org.springframework.security.provisioning.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationSecurity.class);
+    private static final String SERVER_ROOT_USER = "reconf";
 
-    @Autowired DataSource dataSource;
-    @Value("${reconf.user.password}") String rootUserPassword;
+    @Autowired JdbcUserDetailsManager userDetailsManager;
+    @Autowired @Qualifier("rootUserPassword") String rootUserPassword;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/crud/**").hasRole("USER").and().httpBasic();
-        http.authorizeRequests().antMatchers("/security/user").hasRole("ROOT").and().httpBasic();
+        http.authorizeRequests().antMatchers("/crud/product/**").hasRole("USER").and().httpBasic();
+        http.authorizeRequests().antMatchers("/crud/user").hasRole("ROOT").and().httpBasic();
     }
 
     @Autowired
@@ -53,41 +54,49 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         createTableUsers();
         createTableAuthorities();
 
-        JdbcUserDetailsManager userDetailsManager = getJdbcUserDetailsManager(dataSource);
-
         auth.userDetailsService(userDetailsManager);
-        auth.jdbcAuthentication().dataSource(dataSource);
+        auth.jdbcAuthentication().dataSource(userDetailsManager.getDataSource());
 
-        if (userDetailsManager.userExists(ReConfServerApplication.SERVER_ROOT_USER)) {
-            userDetailsManager.deleteUser(ReConfServerApplication.SERVER_ROOT_USER);
+        if (userDetailsManager.userExists(SERVER_ROOT_USER)) {
+            userDetailsManager.deleteUser(SERVER_ROOT_USER);
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROOT"));
         authorities.add(new SimpleGrantedAuthority("USER"));
-        User user = new User(ReConfServerApplication.SERVER_ROOT_USER, rootUserPassword, authorities);
+        User user = new User(SERVER_ROOT_USER, rootUserPassword, authorities);
         userDetailsManager.createUser(user);
     }
 
     private void createTableUsers() {
-        execute("create table users ( username varchar(50) not null primary key, password varchar(255) not null, enabled boolean not null)");
+        boolean ok = execute("select 1 from users");
+        if (!ok) {
+            log.info("creating table users");
+            execute("create table users ( username varchar(50) not null primary key, password varchar(255) not null, enabled boolean not null)");
+        }
     }
 
     private void createTableAuthorities() {
-        execute("create table authorities ( username varchar(50) not null, authority varchar(50) not null, foreign key (username) references users (username) )");
+        boolean ok = execute("select 1 from authorities");
+        if (!ok) {
+            log.info("creating table authorities");
+            execute("create table authorities ( username varchar(50) not null, authority varchar(50) not null, foreign key (username) references users (username) )");
+        }
     }
 
     //http://docs.spring.io/spring-security/site/docs/3.0.x/reference/appendix-schema.html
-    private void execute(String sql) {
+    private boolean execute(String sql) {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = dataSource.getConnection();
+            conn = userDetailsManager.getDataSource().getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.execute();
+            return true;
 
         } catch (Exception e) {
-            log.warn("error creating spring-security tables", e);
+            log.warn("error executing sql statement", e);
+            return false;
 
         } finally {
             try {
@@ -99,12 +108,11 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         }
     }
 
-    public static JdbcUserDetailsManager getJdbcUserDetailsManager(DataSource dataSource) {
-        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
-        userDetailsManager.setDataSource(dataSource);
-        userDetailsManager.setUsersByUsernameQuery("SELECT username, password,enabled FROM users WHERE username=?");
-        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username = ?");
-        userDetailsManager.setRolePrefix("ROLE_");
-        return userDetailsManager;
+    public static boolean isRoot(Authentication auth) {
+        return auth != null && StringUtils.equals(auth.getName(), SERVER_ROOT_USER);
+    }
+
+    public static boolean isRoot(String user) {
+        return StringUtils.equals(user, SERVER_ROOT_USER);
     }
 }

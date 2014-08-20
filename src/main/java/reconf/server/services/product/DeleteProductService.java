@@ -16,7 +16,6 @@
 package reconf.server.services.product;
 
 import java.util.*;
-import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
@@ -34,6 +33,7 @@ public class DeleteProductService {
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
+    @Autowired UserProductRepository userProducts;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.DELETE)
     @Transactional
@@ -41,7 +41,7 @@ public class DeleteProductService {
 
         Product reqProduct = new Product(product, null);
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!StringUtils.equalsIgnoreCase(ReConfServerApplication.SERVER_ROOT_USER, auth.getName())) {
+        if (!ApplicationSecurity.isRoot(auth)) {
             errors.add(Product.ROOT_MESSAGE);
         }
         if (!errors.isEmpty()) {
@@ -55,6 +55,7 @@ public class DeleteProductService {
         products.delete(reqProduct.getName());
         components.deleteByKeyProduct(reqProduct.getName());
         properties.deleteByKeyProduct(reqProduct.getName());
+        userProducts.deleteByKeyProduct(reqProduct.getName());
         return new ResponseEntity<ProductResult>(HttpStatus.OK);
     }
 }

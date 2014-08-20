@@ -16,7 +16,6 @@
 package reconf.server.services.security;
 
 import java.util.*;
-import javax.sql.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
@@ -30,12 +29,12 @@ import reconf.server.domain.*;
 import reconf.server.domain.security.*;
 
 @RestController
-@RequestMapping(value=ReConfServerApplication.SECURITY_ROOT,
+@RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
     produces=ReConfConstants.MT_APPLICATION_JSON,
     consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL, ReConfConstants.MT_APPLICATION_JSON})
 public class UserService {
 
-    @Autowired DataSource dataSource;
+    @Autowired JdbcUserDetailsManager userDetailsManager;
 
     @RequestMapping(value="/user", method=RequestMethod.PUT)
     @Transactional
@@ -46,7 +45,6 @@ public class UserService {
             return new ResponseEntity<Client>(new Client(client, errors), HttpStatus.BAD_REQUEST);
         }
 
-        JdbcUserDetailsManager userDetailsManager = ApplicationSecurity.getJdbcUserDetailsManager(dataSource);
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("USER"));
 
