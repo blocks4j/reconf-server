@@ -58,7 +58,7 @@ public class ReadProductService {
             return new ResponseEntity<ProductResult>(new ProductResult(reqProduct, Product.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        if (authService.isRoot(auth)) {
+        if (AuthorizationService.isRoot(auth)) {
             for (UserProduct userProduct : userProducts.findByKeyProduct(reqProduct.getName())) {
                 dbProduct.addUser(userProduct.getKey().getUsername());
             }

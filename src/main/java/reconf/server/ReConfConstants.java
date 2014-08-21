@@ -37,4 +37,9 @@ public final class ReConfConstants {
      * Security
      */
     public static final String SERVER_ROOT_USER = "reconf";
+
+    /**
+     * Rest
+     */
+    public static final String CRUD_ROOT = "/crud";
 }

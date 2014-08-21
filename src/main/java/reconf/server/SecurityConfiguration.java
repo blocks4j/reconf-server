@@ -25,18 +25,11 @@ public class SecurityConfiguration {
 
     @Autowired private DataSource dataSource;
 
-    @Value("${reconf.user.password}") String rootUserPassword;
-
     @Bean
     public JdbcUserDetailsManager getJdbcUserDetailsManager() {
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager();
         userDetailsManager.setDataSource(dataSource);
         userDetailsManager.setRolePrefix("ROLE_");
         return userDetailsManager;
-    }
-
-    @Bean(name="rootUserPassword")
-    public String getRootUserPassword() {
-        return rootUserPassword;
     }
 }

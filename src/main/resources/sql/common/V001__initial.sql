@@ -20,7 +20,6 @@ create table reconf_property_v1 (
     property_desc varchar(4096),
     rule_priority integer not null,
     rule_regexp varchar(256) not null,
-    property_value clob not null,
     constraint pkPropertyV1 primary key (component_name, property_name, product_name, rule_name)
 );
 

@@ -48,7 +48,7 @@ public class UpsertProductService {
             HttpServletRequest request,
             Authentication auth) {
 
-        if (!authService.isRoot(auth)) {
+        if (!AuthorizationService.isRoot(auth)) {
             return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
         }
 
@@ -75,7 +75,7 @@ public class UpsertProductService {
         dbProduct.setUsers(users);
         users = CollectionUtils.isEmpty(users) ? Collections.EMPTY_LIST : users;
         for (String user : users) {
-            if (authService.isRoot(user)) {
+            if (AuthorizationService.isRoot(user)) {
                 continue;
             }
             userProducts.save(new UserProduct(new UserProductKey(user, reqProduct.getName())));
@@ -85,9 +85,6 @@ public class UpsertProductService {
 
     private ResponseEntity<ProductResult> checkForErrors(Authentication auth, Product reqProduct, List<String> users) {
         List<String> errors = DomainValidator.checkForErrors(reqProduct);
-        if (!authService.isRoot(auth)) {
-            errors.add(Product.ROOT_MESSAGE);
-        }
 
         if (CollectionUtils.isNotEmpty(users)) {
             for (String user : users) {

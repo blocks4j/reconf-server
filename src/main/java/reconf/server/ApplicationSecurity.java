@@ -26,6 +26,7 @@ import org.springframework.security.core.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.provisioning.*;
+import reconf.server.services.security.*;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +34,10 @@ import org.springframework.security.provisioning.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
-    @Autowired @Qualifier("rootUserPassword") String rootUserPassword;
+    @Autowired AuthorizationFilter authFilter;
+    @Value("${reconf.user.password}") String rootUserPassword;
+    @Value("${spring.datasource.url}") String dataSourceUrl;
+
     private final FlywayService flywayService = new FlywayService();
 
     @Override
@@ -46,7 +50,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        flywayService.setUpDB(userDetailsManager.getDataSource());//SpringBoot bug
+        flywayService.setUpDB(userDetailsManager.getDataSource(), dataSourceUrl);//SpringBoot bug
 
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(userDetailsManager.getDataSource());

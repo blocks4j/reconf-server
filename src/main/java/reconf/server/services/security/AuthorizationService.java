@@ -29,9 +29,13 @@ public class AuthorizationService {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
     @Autowired UserProductRepository userProducts;
+    @Autowired ProductRepository products;
 
     public boolean isAuthorized(Authentication auth, String productId) {
         if (isRoot(auth)) {
+            return true;
+        }
+        if (!products.exists(productId)) {
             return true;
         }
         return userProducts.exists(new UserProductKey(auth.getName(), productId));
@@ -41,11 +45,11 @@ public class AuthorizationService {
         return userDetailsManager.userExists(user);
     }
 
-    public boolean isRoot(Authentication auth) {
+    public static boolean isRoot(Authentication auth) {
         return auth != null && StringUtils.equals(auth.getName(), ReConfConstants.SERVER_ROOT_USER);
     }
 
-    public boolean isRoot(String user) {
+    public static boolean isRoot(String user) {
         return StringUtils.equals(user, ReConfConstants.SERVER_ROOT_USER);
     }
 }

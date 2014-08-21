@@ -34,13 +34,12 @@ public class DeleteProductService {
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
     @Autowired UserProductRepository userProducts;
-    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.DELETE)
     @Transactional
     public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product, Authentication auth) {
 
-        if (!authService.isRoot(auth)) {
+        if (!AuthorizationService.isRoot(auth)) {
             return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
         }
 

@@ -29,7 +29,7 @@ import reconf.server.domain.*;
 import reconf.server.domain.security.*;
 
 @RestController
-@RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
+@RequestMapping(value=ReConfConstants.CRUD_ROOT,
     produces=ReConfConstants.MT_APPLICATION_JSON,
     consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL, ReConfConstants.MT_APPLICATION_JSON})
 public class UserService {

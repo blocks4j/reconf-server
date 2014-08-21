@@ -25,8 +25,6 @@ import org.springframework.context.annotation.*;
 // mvn spring-boot:run
 public class ReConfServerApplication {
 
-    public static final String CRUD_ROOT = "/crud";
-
     public static void main(String[] args) {
         new SpringApplicationBuilder()
         .showBanner(false)

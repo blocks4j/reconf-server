@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import reconf.server.*;
 
 @RestController
-@RequestMapping(value=ReConfServerApplication.CRUD_ROOT,
+@RequestMapping(value=ReConfConstants.CRUD_ROOT,
     produces=ReConfConstants.MT_APPLICATION_JSON,
     consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
 @Retention(RetentionPolicy.RUNTIME)

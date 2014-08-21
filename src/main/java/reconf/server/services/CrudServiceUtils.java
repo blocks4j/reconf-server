@@ -23,6 +23,6 @@ public class CrudServiceUtils {
 
     public static String getBaseUrl(HttpServletRequest req) {
         String url = req.getRequestURL().toString();
-        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfServerApplication.CRUD_ROOT), "");
+        return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfConstants.CRUD_ROOT), "");
     }
 }

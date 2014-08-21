@@ -15,8 +15,12 @@
  */
 package reconf.server;
 
+import java.util.*;
+import java.util.regex.*;
 import javax.sql.*;
+import org.apache.commons.lang3.*;
 import org.flywaydb.core.*;
+import com.google.common.collect.*;
 
 /*
  * Flyway must be called manually
@@ -25,18 +29,34 @@ import org.flywaydb.core.*;
  */
 public class FlywayService {
 
-    public void setUpDB(DataSource ds) {
+    private static final Set<String> clobIncompatible = Sets.newHashSet("mysql", "postgresql", "sqlserver");
+
+    public void setUpDB(DataSource ds, String dataSourceUrl) {
         try {
             Flyway flyway = new Flyway();
             flyway.setInitOnMigrate(true);
             flyway.setSqlMigrationPrefix("V");
             flyway.setSqlMigrationSuffix(".sql");
             flyway.setInitVersion("1");
-            flyway.setLocations("./");
+            flyway.setLocations("sql/common", getDbMigration(dataSourceUrl));
             flyway.setDataSource(ds);
             flyway.migrate();
         } catch (Exception e) {
             throw new Error(e);
         }
     }
+
+    private String getDbMigration(String dataSourceUrl) {
+        Pattern pattern = Pattern.compile("jdbc:([^:]+):.*");
+        Matcher matcher = pattern.matcher(StringUtils.lowerCase(dataSourceUrl));
+        if (!matcher.matches()) {
+            throw new RuntimeException("spring.datasource.url does not match a known database");
+        }
+        String database = StringUtils.lowerCase(matcher.group(1));
+        if (clobIncompatible.contains(database)) {
+            return "sql/" + database;
+        }
+        return "sql/" + "clob";
+    }
+
 }

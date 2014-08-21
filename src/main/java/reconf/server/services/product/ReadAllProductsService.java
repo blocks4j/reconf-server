@@ -34,7 +34,6 @@ public class ReadAllProductsService {
 
     @Autowired ProductRepository products;
     @Autowired UserProductRepository userProducts;
-    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -43,7 +42,7 @@ public class ReadAllProductsService {
         String baseUrl = CrudServiceUtils.getBaseUrl(request);
         List<ProductResult> result = new ArrayList<>();
 
-        if (authService.isRoot(auth)) {
+        if (AuthorizationService.isRoot(auth)) {
             for (Product product : products.findAll()) {
                 ProductResult productResult = new ProductResult(product, baseUrl);
                 for (UserProduct userProduct : userProducts.findByKeyProduct(product.getName())) {
