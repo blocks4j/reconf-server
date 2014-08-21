@@ -26,7 +26,6 @@ import org.springframework.security.core.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.provisioning.*;
-import reconf.server.services.security.*;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +33,6 @@ import reconf.server.services.security.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
-    @Autowired AuthorizationFilter authFilter;
     @Value("${reconf.user.password}") String rootUserPassword;
     @Value("${spring.datasource.url}") String dataSourceUrl;
 
