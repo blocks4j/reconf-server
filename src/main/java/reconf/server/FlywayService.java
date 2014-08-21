@@ -45,11 +45,11 @@ public class FlywayService {
 
             version = Integer.parseInt(flyway.info().current().getVersion().toString());
         } catch (Exception e) {
-            throw new Error(e);
+            throw new RuntimeException(e);
         }
 
         if (version != ReConfConstants.DB_VERSION) {
-            throw new Error("error creating tables. check logs");
+            throw new RuntimeException("error creating tables. check logs");
         }
     }
 
