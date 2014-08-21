@@ -25,7 +25,6 @@ import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class DeleteComponentService {
@@ -33,7 +32,6 @@ public class DeleteComponentService {
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
-    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.DELETE)
     @Transactional
@@ -44,10 +42,6 @@ public class DeleteComponentService {
 
         ComponentKey key = new ComponentKey(productId, componentId);
         Component reqComponent = new Component(key);
-
-        if (!authService.isAuthorized(auth, key.getProduct())) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.FORBIDDEN);
-        }
 
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {

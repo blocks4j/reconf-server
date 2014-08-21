@@ -17,27 +17,25 @@ package reconf.server.services.product;
 
 import java.util.*;
 import javax.servlet.http.*;
-import javax.sql.*;
 import org.apache.commons.collections4.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class UpsertProductService {
 
     @Autowired ProductRepository products;
-    @Autowired DataSource dataSource;
     @Autowired UserProductRepository userProducts;
-    @Autowired AuthorizationService authService;
+    @Autowired ApplicationSecurity appSecurity;
 
     @RequestMapping(value="/product/{prod}", method=RequestMethod.PUT)
     @Transactional
@@ -48,7 +46,7 @@ public class UpsertProductService {
             HttpServletRequest request,
             Authentication auth) {
 
-        if (!AuthorizationService.isRoot(auth)) {
+        if (!ApplicationSecurity.isRoot(auth)) {
             return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
         }
 
@@ -75,7 +73,7 @@ public class UpsertProductService {
         dbProduct.setUsers(users);
         users = CollectionUtils.isEmpty(users) ? Collections.EMPTY_LIST : users;
         for (String user : users) {
-            if (AuthorizationService.isRoot(user)) {
+            if (ApplicationSecurity.isRoot(user)) {
                 continue;
             }
             userProducts.save(new UserProduct(new UserProductKey(user, reqProduct.getName())));
@@ -88,7 +86,7 @@ public class UpsertProductService {
 
         if (CollectionUtils.isNotEmpty(users)) {
             for (String user : users) {
-                if (!authService.userExists(user)) {
+                if (!appSecurity.userExists(user)) {
                     errors.add("user " + user + " does not exist");
                 }
             }

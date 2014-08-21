@@ -21,11 +21,11 @@ import org.springframework.http.*;
 import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class DeleteProductService {
@@ -39,7 +39,7 @@ public class DeleteProductService {
     @Transactional
     public ResponseEntity<ProductResult> doIt(@PathVariable("prod") String product, Authentication auth) {
 
-        if (!AuthorizationService.isRoot(auth)) {
+        if (!ApplicationSecurity.isRoot(auth)) {
             return new ResponseEntity<ProductResult>(HttpStatus.FORBIDDEN);
         }
 

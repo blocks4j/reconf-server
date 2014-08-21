@@ -26,13 +26,11 @@ import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class ReadComponentService {
 
     @Autowired ComponentRepository components;
-    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component/{comp}", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -44,10 +42,6 @@ public class ReadComponentService {
 
         ComponentKey key = new ComponentKey(productId, componentId);
         Component reqComponent = new Component(key);
-
-        if (!authService.isAuthorized(auth, key.getProduct())) {
-            return new ResponseEntity<ComponentResult>(HttpStatus.FORBIDDEN);
-        }
 
         List<String> errors = DomainValidator.checkForErrors(key);
         if (!errors.isEmpty()) {

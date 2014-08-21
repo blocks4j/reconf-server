@@ -27,7 +27,6 @@ import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class ReadAllRestrictedPropertiesService {
@@ -35,7 +34,6 @@ public class ReadAllRestrictedPropertiesService {
     @Autowired ProductRepository products;
     @Autowired ComponentRepository components;
     @Autowired PropertyRepository properties;
-    @Autowired AuthorizationService authService;
 
     @RequestMapping(value="/product/{prod}/component/{comp}/property/{prop}/rule", method=RequestMethod.GET)
     @Transactional(readOnly=true)
@@ -47,10 +45,6 @@ public class ReadAllRestrictedPropertiesService {
             Authentication auth) {
 
         PropertyKey key = new PropertyKey(product, component, property);
-
-        if (!authService.isAuthorized(auth, key.getProduct())) {
-            return new ResponseEntity<AllRestrictedPropertiesResult>(HttpStatus.FORBIDDEN);
-        }
 
         if (!products.exists(key.getProduct())) {
             return new ResponseEntity<AllRestrictedPropertiesResult>(new AllRestrictedPropertiesResult(key, Product.NOT_FOUND), HttpStatus.NOT_FOUND);

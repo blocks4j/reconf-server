@@ -22,12 +22,12 @@ import org.springframework.http.*;
 import org.springframework.security.core.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.result.*;
 import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
-import reconf.server.services.security.*;
 
 @CrudService
 public class ReadAllProductsService {
@@ -42,7 +42,7 @@ public class ReadAllProductsService {
         String baseUrl = CrudServiceUtils.getBaseUrl(request);
         List<ProductResult> result = new ArrayList<>();
 
-        if (AuthorizationService.isRoot(auth)) {
+        if (ApplicationSecurity.isRoot(auth)) {
             for (Product product : products.findAll()) {
                 ProductResult productResult = new ProductResult(product, baseUrl);
                 for (UserProduct userProduct : userProducts.findByKeyProduct(product.getName())) {

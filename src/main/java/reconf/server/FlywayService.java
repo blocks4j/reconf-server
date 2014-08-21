@@ -17,9 +17,12 @@ package reconf.server;
 
 import java.util.*;
 import java.util.regex.*;
+import javax.annotation.*;
 import javax.sql.*;
 import org.apache.commons.lang3.*;
 import org.flywaydb.core.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
 import com.google.common.collect.*;
 
 /*
@@ -27,11 +30,16 @@ import com.google.common.collect.*;
  * SpringSecurity starts BEFORE Flyway
  * This causes errors during because SpringSecurity tables are created after SpringSecurity startup
  */
+@Configuration
 public class FlywayService {
+
+    @Value("${spring.datasource.url}") String dataSourceUrl;
+    @Autowired DataSource dataSource;
 
     private static final Set<String> clobIncompatible = Sets.newHashSet("mysql", "postgresql", "sqlserver");
 
-    public void setUpDB(DataSource ds, String dataSourceUrl) {
+    @PostConstruct
+    public void setUpDB() {
         int version = 0;
         try {
             Flyway flyway = new Flyway();
@@ -40,7 +48,7 @@ public class FlywayService {
             flyway.setSqlMigrationSuffix(".sql");
             flyway.setInitVersion("1");
             flyway.setLocations("sql/common", getDbMigration(dataSourceUrl));
-            flyway.setDataSource(ds);
+            flyway.setDataSource(dataSource);
             flyway.migrate();
 
             version = Integer.parseInt(flyway.info().current().getVersion().toString());

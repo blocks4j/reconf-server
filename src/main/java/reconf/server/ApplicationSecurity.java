@@ -16,6 +16,7 @@
 package reconf.server;
 
 import java.util.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
@@ -26,6 +27,7 @@ import org.springframework.security.core.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.provisioning.*;
+import reconf.server.services.security.*;
 
 @Configuration
 @EnableWebSecurity
@@ -33,23 +35,22 @@ import org.springframework.security.provisioning.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
+    @Autowired ProductDecisionManager decisionManager;
     @Value("${reconf.user.password}") String rootUserPassword;
-    @Value("${spring.datasource.url}") String dataSourceUrl;
-
-    private final FlywayService flywayService = new FlywayService();
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/crud/product/**").hasRole("USER").and().httpBasic();
-        http.authorizeRequests().antMatchers("/crud/user").hasRole("ROOT").and().httpBasic();
+        http.authorizeRequests()
+        .antMatchers("/crud/product/**").hasRole("USER")
+        .antMatchers("/crud/user").hasRole("ROOT")
+        .anyRequest().authenticated().accessDecisionManager(decisionManager)
+        .and().httpBasic();
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        flywayService.setUpDB(userDetailsManager.getDataSource(), dataSourceUrl);//SpringBoot bug
-
         auth.userDetailsService(userDetailsManager);
         auth.jdbcAuthentication().dataSource(userDetailsManager.getDataSource());
 
@@ -62,5 +63,17 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         authorities.add(new SimpleGrantedAuthority("USER"));
         User user = new User(ReConfConstants.SERVER_ROOT_USER, rootUserPassword, authorities);
         userDetailsManager.createUser(user);
+    }
+
+    public static boolean isRoot(Authentication auth) {
+        return auth != null && StringUtils.equals(auth.getName(), ReConfConstants.SERVER_ROOT_USER);
+    }
+
+    public static boolean isRoot(String user) {
+        return StringUtils.equals(user, ReConfConstants.SERVER_ROOT_USER);
+    }
+
+    public boolean userExists(String user) {
+        return userDetailsManager.userExists(user);
     }
 }

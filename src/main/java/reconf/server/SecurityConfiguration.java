@@ -23,6 +23,7 @@ import org.springframework.security.provisioning.*;
 @Configuration
 public class SecurityConfiguration {
 
+    @Autowired(required=true) FlywayService flywayService;
     @Autowired private DataSource dataSource;
 
     @Bean
