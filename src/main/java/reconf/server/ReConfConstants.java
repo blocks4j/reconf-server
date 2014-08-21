@@ -42,4 +42,9 @@ public final class ReConfConstants {
      * Rest
      */
     public static final String CRUD_ROOT = "/crud";
+
+    /**
+     * Flyway
+     */
+    public static final int DB_VERSION = 2;
 }

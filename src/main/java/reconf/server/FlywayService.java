@@ -32,6 +32,7 @@ public class FlywayService {
     private static final Set<String> clobIncompatible = Sets.newHashSet("mysql", "postgresql", "sqlserver");
 
     public void setUpDB(DataSource ds, String dataSourceUrl) {
+        int version = 0;
         try {
             Flyway flyway = new Flyway();
             flyway.setInitOnMigrate(true);
@@ -41,8 +42,14 @@ public class FlywayService {
             flyway.setLocations("sql/common", getDbMigration(dataSourceUrl));
             flyway.setDataSource(ds);
             flyway.migrate();
+
+            version = Integer.parseInt(flyway.info().current().getVersion().toString());
         } catch (Exception e) {
             throw new Error(e);
+        }
+
+        if (version != ReConfConstants.DB_VERSION) {
+            throw new Error("error creating tables. check logs");
         }
     }
 
