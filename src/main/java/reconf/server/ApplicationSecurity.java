@@ -41,11 +41,11 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests()
         .antMatchers("/crud/product/**").hasRole("USER")
         .antMatchers("/crud/user").hasRole("ROOT")
         .anyRequest().authenticated().accessDecisionManager(decisionManager)
+        .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and().httpBasic();
     }
 
