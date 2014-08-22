@@ -22,6 +22,10 @@ import reconf.server.*;
 public class CrudServiceUtils {
 
     public static String getBaseUrl(HttpServletRequest req) {
+        if (StringUtils.isNotBlank(req.getHeader(ReConfConstants.H_REQUEST_URL))) {
+            return req.getHeader(ReConfConstants.H_REQUEST_URL) + ReConfConstants.CRUD_ROOT;
+        }
+
         String url = req.getRequestURL().toString();
         return StringUtils.replace(url, StringUtils.substringAfter(url, ReConfConstants.CRUD_ROOT), "");
     }

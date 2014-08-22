@@ -32,6 +32,7 @@ public final class ReConfConstants {
      */
     public static final String H_RESPONSE_RESULT = "X-ReConf-Result";
     public static final String H_RESPONSE_RULE = "X-ReConf-Rule";
+    public static final String H_REQUEST_URL = "X-ReConf-URL";
 
     /**
      * Security

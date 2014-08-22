@@ -53,6 +53,11 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
         }
 
         AntPathMatcher antMatcher = new AntPathMatcher();
+        if (antMatcher.match("/crud/product", url)) {
+            if (userDetailsManager.userExists(authentication.getName())) {
+                return;
+            }
+        }
         if (antMatcher.match("/crud/product/{product}", url)) {
             if (continueToProduct(authentication, antMatcher, "/crud/product/{product}", url)) {
                return;
@@ -76,6 +81,12 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
         throw new AccessDeniedException("Forbidden");
     }
 
+    private boolean continueToProduct(Authentication authentication, AntPathMatcher antMatcher, String pattern, String url) {
+        Map<String, String> parameters = antMatcher.extractUriTemplateVariables(pattern, url);
+        Product product = new Product(parameters.get("product"));
+        return isAuthorized(authentication, product.getName());
+    }
+
     private boolean isAuthorized(Authentication auth, String productId) {
         if (ApplicationSecurity.isRoot(auth)) {
             return true;
@@ -84,12 +95,6 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
             return true;
         }
         return userProducts.exists(new UserProductKey(auth.getName(), productId));
-    }
-
-    private boolean continueToProduct(Authentication authentication, AntPathMatcher antMatcher, String pattern, String url) {
-        Map<String, String> parameters = antMatcher.extractUriTemplateVariables(pattern, url);
-        Product product = new Product(parameters.get("product"));
-        return isAuthorized(authentication, product.getName());
     }
 
     @Override
