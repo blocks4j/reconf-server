@@ -19,7 +19,7 @@ import java.util.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name="user_product_v1")
+@Table(name="user_product")
 public class UserProduct {
 
     private UserProductKey key;
