@@ -23,7 +23,7 @@ import javax.validation.constraints.*;
 import org.hibernate.validator.constraints.*;
 
 @Entity
-@Table(name="reconf_property_v1")
+@Table(name="reconf_property")
 public class Property implements Serializable {
 
     public static final List<String> GLOBAL_NOT_FOUND = Collections.singletonList("global property not found");
