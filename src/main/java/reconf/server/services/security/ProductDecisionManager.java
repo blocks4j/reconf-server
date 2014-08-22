@@ -33,6 +33,8 @@ public class ProductDecisionManager implements AccessDecisionManager {
 
     @Autowired UserProductRepository userProducts;
     @Autowired ProductRepository products;
+    private final Pattern crudProductPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/product/(\\w+).*");
+    private final Pattern crudUserPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/user[/]?");
 
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
@@ -43,15 +45,21 @@ public class ProductDecisionManager implements AccessDecisionManager {
             return;
         }
         FilterInvocation filterInvocation = (FilterInvocation) object;
-        Pattern pattern = Pattern.compile("/crud/product/(\\w+).*");
-        Matcher matcher = pattern.matcher(filterInvocation.getRequestUrl());
-        if (!matcher.matches()) {
-            return;
-        }
-        Product product = new Product(matcher.group(1));
 
-        if (isAuthorized(authentication, product.getName())) {
-            return;
+        Matcher matcher = crudProductPattern.matcher(filterInvocation.getRequestUrl());
+        if (matcher.matches()) {
+            Product product = new Product(matcher.group(1));
+            if (isAuthorized(authentication, product.getName())) {
+                return;
+            }
+            throw new AccessDeniedException("Forbidden");
+        }
+
+        matcher = crudUserPattern.matcher(filterInvocation.getRequestUrl());
+        if (matcher.matches()) {
+            if (ApplicationSecurity.isRoot(authentication)) {
+                return;
+            }
         }
         throw new AccessDeniedException("Forbidden");
     }
