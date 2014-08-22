@@ -19,7 +19,7 @@ import java.util.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name="reconf_component_v1")
+@Table(name="reconf_component")
 public class Component {
 
     public static final String NAME_MESSAGE = "component must match [a-zA-Z_0-9]{3,256}";
