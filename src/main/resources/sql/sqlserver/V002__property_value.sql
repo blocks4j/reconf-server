@@ -1,1 +1,1 @@
-alter table reconf_property_v1 add column property_value VARCHAR(MAX) not null;
+alter table reconf_property add column property_value VARCHAR(MAX) not null;
