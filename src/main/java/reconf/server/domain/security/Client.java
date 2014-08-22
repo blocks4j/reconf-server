@@ -33,6 +33,11 @@ public class Client {
 
     public Client() { }
 
+    public Client(String username, List<String> errors) {
+        this.username = username;
+        this.errors = errors;
+    }
+
     public Client(Client request) {
         this.username = request.getUsername();
         this.password = StringUtils.repeat("*", StringUtils.length(request.getPassword()));

@@ -36,8 +36,8 @@ import reconf.server.domain.security.*;
 public class UpsertUserService {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
-    private static final List<String> mustBeRoot = Collections.singletonList("must be root to perform this action");
-    private static final List<String> cannotChangeRootPassword = Collections.singletonList("cannot change root password");
+    private static final List<String> mustBeRoot = Collections.singletonList("must be reconf to perform this action");
+    private static final List<String> cannotChangeRootPassword = Collections.singletonList("cannot change reconf password");
 
     @RequestMapping(value="/user", method=RequestMethod.PUT)
     @Transactional

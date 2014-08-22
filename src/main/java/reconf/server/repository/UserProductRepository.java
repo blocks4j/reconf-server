@@ -22,6 +22,7 @@ import reconf.server.domain.security.*;
 public interface UserProductRepository extends CrudRepository<UserProduct, UserProductKey> {
 
     void deleteByKeyProduct(String product);
+    void deleteByKeyUsername(String username);
     List<UserProduct> findByKeyProduct(String product);
     List<UserProduct> findByKeyUsername(String username);
 }

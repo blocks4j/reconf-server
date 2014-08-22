@@ -16,7 +16,7 @@
 package reconf.server.services.security;
 
 import java.util.*;
-import java.util.regex.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.access.*;
 import org.springframework.security.authentication.*;
@@ -24,6 +24,7 @@ import org.springframework.security.core.*;
 import org.springframework.security.provisioning.*;
 import org.springframework.security.web.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.*;
 import reconf.server.*;
 import reconf.server.domain.*;
 import reconf.server.domain.security.*;
@@ -35,8 +36,6 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
     @Autowired UserProductRepository userProducts;
     @Autowired ProductRepository products;
     @Autowired JdbcUserDetailsManager userDetailsManager;
-    private final Pattern crudProductPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/product/(\\w+).*");
-    private final Pattern crudUserPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/user[/]?");
 
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
@@ -48,18 +47,29 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
         }
         FilterInvocation filterInvocation = (FilterInvocation) object;
 
-        Matcher matcher = crudProductPattern.matcher(filterInvocation.getRequestUrl());
-        if (matcher.matches()) {
-            Product product = new Product(matcher.group(1));
-            if (isAuthorized(authentication, product.getName())) {
-                return;
-            }
-            throw new AccessDeniedException("Forbidden");
+        String url = filterInvocation.getRequestUrl();
+        if (url.endsWith("/")) {
+            url = StringUtils.substringBeforeLast(url, "/");
         }
 
-        matcher = crudUserPattern.matcher(filterInvocation.getRequestUrl());
-        if (matcher.matches()) {
+        AntPathMatcher antMatcher = new AntPathMatcher();
+        if (antMatcher.match("/crud/product/{product}", url)) {
+            if (continueToProduct(authentication, antMatcher, "/crud/product/{product}", url)) {
+               return;
+            }
+        }
+        if (antMatcher.match("/crud/product/{product}/**", url)) {
+            if (continueToProduct(authentication, antMatcher, "/crud/product/{product}/**", url)) {
+                return;
+             }
+        }
+        if (antMatcher.match("/crud/user", url)) {
             if (userDetailsManager.userExists(authentication.getName())) {
+                return;
+            }
+        }
+        if (antMatcher.match("/crud/user/**", url)) {
+            if (ApplicationSecurity.isRoot(authentication)) {
                 return;
             }
         }
@@ -76,6 +86,12 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
         return userProducts.exists(new UserProductKey(auth.getName(), productId));
     }
 
+    private boolean continueToProduct(Authentication authentication, AntPathMatcher antMatcher, String pattern, String url) {
+        Map<String, String> parameters = antMatcher.extractUriTemplateVariables(pattern, url);
+        Product product = new Product(parameters.get("product"));
+        return isAuthorized(authentication, product.getName());
+    }
+
     @Override
     public boolean supports(ConfigAttribute attribute) {
         return true;
@@ -85,5 +101,4 @@ public class SecurityAccessDecisionManager implements AccessDecisionManager {
     public boolean supports(Class<?> clazz) {
         return true;
     }
-
 }
