@@ -23,7 +23,7 @@ import org.apache.commons.lang3.builder.*;
 import org.hibernate.validator.constraints.*;
 
 @Entity
-@Table(name="reconf_product_v1")
+@Table(name="reconf_product")
 public class Product {
 
     public static final String ROOT_MESSAGE = "reconf user required";
