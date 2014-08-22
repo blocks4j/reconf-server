@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.access.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
+import org.springframework.security.provisioning.*;
 import org.springframework.security.web.*;
 import org.springframework.stereotype.Component;
 import reconf.server.*;
@@ -29,10 +30,11 @@ import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 
 @Component
-public class ProductDecisionManager implements AccessDecisionManager {
+public class SecurityAccessDecisionManager implements AccessDecisionManager {
 
     @Autowired UserProductRepository userProducts;
     @Autowired ProductRepository products;
+    @Autowired JdbcUserDetailsManager userDetailsManager;
     private final Pattern crudProductPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/product/(\\w+).*");
     private final Pattern crudUserPattern = Pattern.compile(ReConfConstants.CRUD_ROOT + "/user[/]?");
 
@@ -57,7 +59,7 @@ public class ProductDecisionManager implements AccessDecisionManager {
 
         matcher = crudUserPattern.matcher(filterInvocation.getRequestUrl());
         if (matcher.matches()) {
-            if (ApplicationSecurity.isRoot(authentication)) {
+            if (userDetailsManager.userExists(authentication.getName())) {
                 return;
             }
         }

@@ -16,6 +16,7 @@
 package reconf.server.services.security;
 
 import java.util.*;
+import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.*;
@@ -32,23 +33,49 @@ import reconf.server.domain.security.*;
 @RequestMapping(value=ReConfConstants.CRUD_ROOT,
     produces=ReConfConstants.MT_APPLICATION_JSON,
     consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL, ReConfConstants.MT_APPLICATION_JSON})
-public class UserService {
+public class UpsertUserService {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
+    private static final List<String> mustBeRoot = Collections.singletonList("must be root to perform this action");
+    private static final List<String> cannotChangeRootPassword = Collections.singletonList("cannot change root password");
 
     @RequestMapping(value="/user", method=RequestMethod.PUT)
     @Transactional
-    public ResponseEntity<Client> doIt(@RequestBody Client client) {
+    public ResponseEntity<Client> doIt(@RequestBody Client client, Authentication authentication) {
 
         List<String> errors = DomainValidator.checkForErrors(client);
         if (!errors.isEmpty()) {
             return new ResponseEntity<Client>(new Client(client, errors), HttpStatus.BAD_REQUEST);
         }
+        HttpStatus status = null;
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("USER"));
 
-        HttpStatus status = null;
+        if (ApplicationSecurity.isRoot(authentication)) {
+            if (ApplicationSecurity.isRoot(client.getUsername())) {
+                return new ResponseEntity<Client>(new Client(client, cannotChangeRootPassword), HttpStatus.BAD_REQUEST);
+            }
+            status = upsert(client, authorities);
+
+        } else if (StringUtils.equals(client.getUsername(), authentication.getName())) {
+            if (!userDetailsManager.userExists(client.getUsername())) {
+                return new ResponseEntity<Client>(new Client(client, mustBeRoot), HttpStatus.BAD_REQUEST);
+            }
+            User user = new User(client.getUsername(), client.getPassword(), authorities);
+            userDetailsManager.updateUser(user);
+            status = HttpStatus.OK;
+
+        } else {
+            return new ResponseEntity<Client>(HttpStatus.FORBIDDEN);
+        }
+
+        return new ResponseEntity<Client>(new Client(client), status);
+    }
+
+    private HttpStatus upsert(Client client, List<GrantedAuthority> authorities) {
+        HttpStatus status;
+
         User user = new User(client.getUsername(), client.getPassword(), authorities);
         if (userDetailsManager.userExists(client.getUsername())) {
             userDetailsManager.updateUser(user);
@@ -57,7 +84,6 @@ public class UserService {
             userDetailsManager.createUser(user);
             status = HttpStatus.CREATED;
         }
-
-        return new ResponseEntity<Client>(new Client(client), status);
+        return status;
     }
 }

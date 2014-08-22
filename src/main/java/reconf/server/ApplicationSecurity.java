@@ -35,17 +35,16 @@ import reconf.server.services.security.*;
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;
-    @Autowired ProductDecisionManager decisionManager;
+    @Autowired SecurityAccessDecisionManager decisionManager;
     @Value("${reconf.user.password}") String rootUserPassword;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests()
-        .antMatchers("/crud/product/**").hasRole("USER")
-        .antMatchers("/crud/user").hasRole("ROOT")
-        .anyRequest().authenticated().accessDecisionManager(decisionManager)
-        .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .antMatchers("/crud/**").fullyAuthenticated()
+        .accessDecisionManager(decisionManager)
         .and().httpBasic();
     }
 
