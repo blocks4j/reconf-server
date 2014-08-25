@@ -26,8 +26,6 @@ import org.springframework.context.annotation.*;
 public class ReConfServerApplication {
 
     public static void main(String[] args) {
-        System.setProperty("javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT", "true");
-
         new SpringApplicationBuilder()
         .showBanner(false)
         .sources(ReConfServerApplication.class)
