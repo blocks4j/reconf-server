@@ -30,7 +30,7 @@ import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-@CrudXmlService
+@CrudService
 public class UpsertProductService {
 
     @Autowired ProductRepository products;

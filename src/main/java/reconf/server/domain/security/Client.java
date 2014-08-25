@@ -17,12 +17,12 @@ package reconf.server.domain.security;
 
 import java.util.*;
 import javax.validation.constraints.*;
-import javax.xml.bind.annotation.*;
 import org.apache.commons.lang3.*;
 import org.hibernate.validator.constraints.*;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@XmlRootElement(name="user")
-@XmlType(propOrder={"username", "password", "errors"})
+@JsonInclude(Include.NON_NULL)
 public class Client {
 
     public static final String NAME_MESSAGE = "username must match [a-zA-Z_0-9]{3,50}";
@@ -52,7 +52,6 @@ public class Client {
     @NotNull(message=Client.NAME_MESSAGE)
     @Size(min=3, max=50, message=Client.NAME_MESSAGE)
     @Pattern(regexp="\\w*", message=Client.NAME_MESSAGE)
-    @XmlElement(name="name")
     public String getUsername() {
         return StringUtils.lowerCase(username);
     }
@@ -63,7 +62,6 @@ public class Client {
     @NotBlank(message=Client.PASS_MESSAGE)
     @NotNull(message=Client.PASS_MESSAGE)
     @Size(min=3, max=50, message=Client.PASS_MESSAGE)
-    @XmlElement(name="password")
     public String getPassword() {
         return password;
     }
@@ -71,7 +69,6 @@ public class Client {
         this.password = password;
     }
 
-    @XmlElementWrapper(name="errors") @XmlElement(name="error")
     public List<String> getErrors() {
         return errors;
     }

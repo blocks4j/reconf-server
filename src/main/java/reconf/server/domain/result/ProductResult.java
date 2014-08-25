@@ -17,11 +17,11 @@ package reconf.server.domain.result;
 
 import java.net.*;
 import java.util.*;
-import javax.xml.bind.annotation.*;
 import reconf.server.domain.*;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@XmlRootElement(name="product")
-@XmlType(propOrder={"product", "desc", "users", "links", "errors"})
+@JsonInclude(Include.NON_NULL)
 public class ProductResult {
 
     private String product;
@@ -29,8 +29,6 @@ public class ProductResult {
     private List<String> users;
     private List<Link> links;
     private List<String> errors;
-
-    public ProductResult() { }
 
     private ProductResult(Product arg) {
         this.product = arg.getName();
@@ -53,17 +51,14 @@ public class ProductResult {
         return "/product/" + arg.getName();
     }
 
-    @XmlElement(name="name")
     public String getProduct() {
         return product;
     }
 
-    @XmlElement(name="desc")
     public String getDesc() {
         return desc;
     }
 
-    @XmlElementWrapper(name="users") @XmlElement(name="user")
     public List<String> getUsers() {
         return users;
     }
@@ -74,12 +69,10 @@ public class ProductResult {
         this.users.add(user);
     }
 
-    @XmlElementWrapper(name="links") @XmlElement(name="link")
     public List<Link> getLinks() {
         return links;
     }
 
-    @XmlElementWrapper(name="errors") @XmlElement(name="error")
     public List<String> getErrors() {
         return errors;
     }
