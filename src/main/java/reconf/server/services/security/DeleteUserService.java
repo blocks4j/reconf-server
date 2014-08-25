@@ -28,8 +28,8 @@ import reconf.server.repository.*;
 
 @RestController
 @RequestMapping(value=ReConfConstants.CRUD_ROOT,
-    produces=ReConfConstants.MT_APPLICATION_JSON,
-    consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL, ReConfConstants.MT_APPLICATION_JSON})
+    produces=ReConfConstants.MT_APPLICATION_XML,
+    consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL, ReConfConstants.MT_APPLICATION_XML})
 public class DeleteUserService {
 
     @Autowired JdbcUserDetailsManager userDetailsManager;

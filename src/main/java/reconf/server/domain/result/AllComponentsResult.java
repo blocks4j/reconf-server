@@ -17,22 +17,22 @@ package reconf.server.domain.result;
 
 import java.net.*;
 import java.util.*;
+import javax.xml.bind.annotation.*;
 import reconf.server.domain.*;
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@JsonInclude(Include.NON_NULL)
+@XmlRootElement(name="components")
+@XmlType(propOrder={"product", "components", "links", "errors"})
 public class AllComponentsResult {
 
     private String product;
-    private String description;
     private List<ComponentResult> components;
     private List<Link> links;
     private List<String> errors;
 
+    public AllComponentsResult() { }
+
     public AllComponentsResult(Product product, List<ComponentResult> components, String baseUrl) {
         this.product = product.getName();
-        this.description = product.getDescription();
         this.components = components;
         this.links = new ArrayList<>();
         this.links.add(new Link(URI.create(baseUrl + getUri()), "self"));
@@ -47,25 +47,23 @@ public class AllComponentsResult {
         return "/product/" + product + "/component/";
     }
 
+    @XmlElement(name="product")
     public String getProduct() {
         return product;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
+    @XmlElement(name="component")
     public List<ComponentResult> getComponents() {
         return components;
     }
 
+    @XmlElementWrapper(name="links") @XmlElement(name="link")
     public List<Link> getLinks() {
         return links;
     }
 
+    @XmlElementWrapper(name="errors") @XmlElement(name="error")
     public List<String> getErrors() {
         return errors;
     }
-
-
 }

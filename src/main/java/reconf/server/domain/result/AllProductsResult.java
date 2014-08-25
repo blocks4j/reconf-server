@@ -17,14 +17,16 @@ package reconf.server.domain.result;
 
 import java.net.*;
 import java.util.*;
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import javax.xml.bind.annotation.*;
 
-@JsonInclude(Include.NON_NULL)
+@XmlRootElement(name="products")
+@XmlType(propOrder={"products", "links"})
 public class AllProductsResult {
 
     private List<ProductResult> products;
     private List<Link> links;
+
+    public AllProductsResult() { }
 
     public AllProductsResult(List<ProductResult> arg, String baseUrl) {
         this.products = arg;
@@ -32,17 +34,13 @@ public class AllProductsResult {
         this.links.add(new Link(URI.create(baseUrl + "/product"), "self"));
     }
 
+    @XmlElement(name="product")
     public List<ProductResult> getProducts() {
         return products;
     }
-    public void setProducts(List<ProductResult> products) {
-        this.products = products;
-    }
 
+    @XmlElementWrapper(name="links") @XmlElement(name="link")
     public List<Link> getLinks() {
         return links;
-    }
-    public void setLinks(List<Link> links) {
-        this.links = links;
     }
 }

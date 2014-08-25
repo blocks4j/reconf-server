@@ -29,7 +29,7 @@ import reconf.server.domain.security.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-@CrudService
+@CrudXmlService
 public class ReadAllProductsService {
 
     @Autowired ProductRepository products;

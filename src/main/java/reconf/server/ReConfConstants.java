@@ -24,6 +24,7 @@ public final class ReConfConstants {
      */
     public static final String MT_PROTOCOL_V1 = "application/vnd.reconf-v1+text";
     public static final String MT_APPLICATION_JSON = MediaType.APPLICATION_JSON_VALUE;
+    public static final String MT_APPLICATION_XML = MediaType.APPLICATION_XML_VALUE;
     public static final String MT_TEXT_PLAIN = MediaType.TEXT_PLAIN_VALUE;
     public static final String MT_ALL = MediaType.ALL_VALUE;
 

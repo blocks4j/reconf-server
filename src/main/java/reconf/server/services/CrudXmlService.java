@@ -13,24 +13,17 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package reconf.server;
+package reconf.server.services;
 
-import org.springframework.boot.autoconfigure.*;
-import org.springframework.boot.builder.*;
-import org.springframework.context.annotation.*;
+import java.lang.annotation.*;
+import org.springframework.web.bind.annotation.*;
+import reconf.server.*;
 
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-// mvn spring-boot:run
-public class ReConfServerApplication {
-
-    public static void main(String[] args) {
-        System.setProperty("javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT", "true");
-
-        new SpringApplicationBuilder()
-        .showBanner(false)
-        .sources(ReConfServerApplication.class)
-        .run(args);
-    }
+@RestController
+@RequestMapping(value=ReConfConstants.CRUD_ROOT,
+    produces=ReConfConstants.MT_APPLICATION_XML,
+    consumes={ReConfConstants.MT_TEXT_PLAIN, ReConfConstants.MT_ALL})
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface CrudXmlService {
 }

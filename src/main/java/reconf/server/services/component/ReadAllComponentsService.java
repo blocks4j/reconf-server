@@ -27,7 +27,7 @@ import reconf.server.domain.result.*;
 import reconf.server.repository.*;
 import reconf.server.services.*;
 
-@CrudService
+@CrudXmlService
 public class ReadAllComponentsService {
 
     @Autowired ComponentRepository components;
