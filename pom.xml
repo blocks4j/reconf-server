@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com.uol.reconf</groupId>
     <artifactId>reconf-server</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>ReConf Server</name>
     <packaging>jar</packaging>
     <contributors>
