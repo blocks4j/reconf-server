@@ -1,0 +1,31 @@
+{
+    "title": "Product Schema",
+    "type": "object",
+    "properties": {
+        "product": {
+            "description": "the name of the product",
+            "type": "string",
+            "pattern": "[a-zA-Z_0-9]{3,256}"
+        },
+        "desc": {
+            "description": "the description of the product",
+            "type": "string",
+            "pattern": "[.*]{0,4096}"
+        },
+        "users": {
+            "type": "array",
+            "uniqueItems" : true,
+            "items": {
+                "type": "string"
+            },
+            "description": "the list of users authorized to manipulate the product"
+        }
+    },
+    "links": [
+        {
+            "rel": "self",
+            "href": "/crud/product/{product}"
+        }
+    ],
+    "required": ["product"]
+}
